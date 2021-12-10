@@ -15,6 +15,7 @@ __version__ = "0.5"
 import concurrent.futures
 import os
 import glob
+from termcolor import colored
 
 
 class Alignment:
@@ -24,28 +25,52 @@ class Alignment:
         self.outputdir = outputdir
         # extension is the file extension, example: .fasta
         self.extension = extension
-        # genomeHiSat2 is the reference genome the alignments will be done
+        # genomeHiSat2 is the reference genome the alignments will be done against
         self.genome = genomehisat2
 
     def main_process(self):
         """
 
         """
-        # TODO: Align the files and see about paired end alignments
+        # TODO: Write fancy colored console messages & 1 pair check to prevent crashing
         # Load in the names of the files & make sure only unique files are added for alignment
+        print("Starting the alignment process")
         self.unique_filenames_unpaired = []
         self.unique_filenames_paired = []
+        self.unique_filenames = []
         for files in glob.glob(f"{self.outputdir}/Preprocessing/trimmed/*.{self.extension}"):
             if files not in self.unique_filenames:
-
                 self.unique_filenames.append(files)
-
+                if len(files.split("_")) == 3:
+                    self.unique_filenames_paired.append(files)
+                else:
+                    self.unique_filenames_unpaired.append(files)
 
         with concurrent.futures.ProcessPoolExecutor() as executor:
-            alignments = executor.map(self.align, self.unique_filenames)
+            unpaired_alignments = executor.map(self.align, self.unique_filenames_unpaired)
+            paired_alignments = executor.map(self.paired_align, self.paired_files)
 
-        for result in alignments:
+        for result in unpaired_alignments:
             print(result)
+        for result in paired_alignments:
+            print(result)
+
+
+
+    def paired_finder(self):
+        """
+        This function goes through the list of paired sequences and combines the 2 that are paired.
+        :return:
+        """
+        self.paired_files = {}
+        for file in self.unique_filenames_paired:
+            sequence_name = file[0].split("_")
+            if sequence_name in self.paired_files:
+                self.paired_files[sequence_name].append(file)
+            else:
+                x = []
+                self.paired_files[sequence_name] = x
+                self.paired_files[sequence_name].append(file)
 
     def align(self, file):
         """
@@ -60,6 +85,7 @@ class Alignment:
     def paired_align(self, files):
         """
         This functions aligns the paired sequences in the files to the genome generated beforehand
+        The input of this file needs to be 2 reads.
         """
         file_names = []
         for file in files:
