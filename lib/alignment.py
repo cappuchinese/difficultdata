@@ -1,4 +1,3 @@
-
 """
 This module is to align the sequences in the files with the trimmed reads from the trim_files module.
 # The trimmed reads are obtained from the trimmed reads folder or directly from the other module.
@@ -15,37 +14,51 @@ __version__ = "0.5"
 import concurrent.futures
 import os
 import glob
+import subprocess
+
 from termcolor import colored
 
 
 class Alignment:
+    """
+    TODO class docstring
+    """
 
-    def __init__(self, outputdir, extension, genomehisat2):
-        # Outputdir is the output directory
+    def __init__(self, outputdir, genomehs2):
+        """
+        :param outputdir: output directory
+        :param genomehs2: genomeHiSat2 is the reference genome the alignments will be done against
+        """
         self.outputdir = outputdir
-        # extension is the file extension, example: .fasta
-        self.extension = extension
-        # genomeHiSat2 is the reference genome the alignments will be done against
-        self.genome = genomehisat2
+        self.extension = r"f[ast]*q"
+        self.genome = genomehs2
 
-    def main_process(self):
-        """
-
-        """
-        # TODO: Write fancy colored console messages & 1 pair check to prevent crashing
-        # Load in the names of the files & make sure only unique files are added for alignment
-        print("Starting the alignment process")
         self.unique_filenames_unpaired = []
         self.unique_filenames_paired = []
         self.unique_filenames = []
+        self.paired_files = {}
+
+    def main_process(self):
+        """
+        TODO docstring
+        TODO: 1 pair check to prevent crashing, load in the names of the files & make sure only
+         unique files are added for alignment
+        """
+        print(colored("Starting the alignment process", "blue", attrs=["bold"]))
+
+        # Looping through the trimmed files
         for files in glob.glob(f"{self.outputdir}/Preprocessing/trimmed/*.{self.extension}"):
             if files not in self.unique_filenames:
+                # Add the unique filenames to a list
                 self.unique_filenames.append(files)
                 if len(files.split("_")) == 3:
+                    # If there are 3 parts in the filename, it means a paired alignment
                     self.unique_filenames_paired.append(files)
                 else:
+                    # Else it is an unpaired alignment
                     self.unique_filenames_unpaired.append(files)
 
+        # Form the processes
         with concurrent.futures.ProcessPoolExecutor() as executor:
             unpaired_alignments = executor.map(self.align, self.unique_filenames_unpaired)
             paired_alignments = executor.map(self.paired_align, self.paired_files)
@@ -55,14 +68,11 @@ class Alignment:
         for result in paired_alignments:
             print(result)
 
-
-
     def paired_finder(self):
         """
         This function goes through the list of paired sequences and combines the 2 that are paired.
         :return:
         """
-        self.paired_files = {}
         for file in self.unique_filenames_paired:
             sequence_name = file[0].split("_")
             if sequence_name in self.paired_files:
@@ -78,9 +88,12 @@ class Alignment:
         """
         filename = file.split("/")
         fastq_name = filename[0].split(".")
-        os.system(f"hisat2 -x ./{self.genome} -U {filename} 2> "
-                  f"{self.outputdir}/Results/alignment/{fastq_name.replace('_trimmed', '')}.log | samtools view -Sbo "
-                  f"{self.outputdir}/Preprocessing/aligned/{fastq_name.replace('_trimmed', '')}.bam -")
+        subprocess.run(["hisat2", "-x", f"./{self.genome}", "-U", f"{filename}", "2>",
+                        f"{self.outputdir}/Results/alignment/{fastq_name.replace('_trimmed', '')}"
+                        ".log", "|", "samtools", "view", "-Sbo",
+                        f"{self.outputdir}/Preprocessing/aligned/"
+                        f"{fastq_name.replace('_trimmed', '')}.bam -"],
+                       stdout=subprocess.STDOUT, text=True, check=True)
 
     def paired_align(self, files):
         """
@@ -94,10 +107,9 @@ class Alignment:
             filename = filename[0].split(".")
             fastq_name = filename[0].split("_")
 
-        os.system(f"hisat2 -x ./{self.genome} -1 {file_names[0]} -2 {file_names[0]} 2> "
-                  f"{self.outputdir}/Results/alignment/{fastq_name}.log | samtools view -Sbo "
-                  f"{self.outputdir}/Preprocessing/aligned/{fastq_name}.bam -")
-
-
-
-
+        subprocess.run(["hisat2", "-x", f"./{self.genome}", "-1", f"{file_names[0]}", "-2",
+                        f"{file_names[0]}", "2>",
+                        f"{self.outputdir}/Results/alignment/{fastq_name}.log",
+                        "|", "samtools", "view", "-Sbo",
+                        f"{self.outputdir}/Preprocessing/aligned/{fastq_name}.bam", "-"],
+                       stdout=subprocess.STDOUT, text=True, check=True)

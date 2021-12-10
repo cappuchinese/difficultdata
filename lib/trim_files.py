@@ -7,8 +7,7 @@ __version__ = 1.0
 
 import subprocess
 import glob
-from multiprocessing import Process
-from subprocess import run as sub_run
+import concurrent.futures as confut
 from termcolor import colored
 
 
@@ -19,6 +18,7 @@ class TrimFiles:
         and removes the adapters if necessary.
     fastx_trimmer requires an end bp or a beginning and an end bp for the trimming.
     """
+
     def __init__(self, output_dir, trim, trim_galore):
         self.outdir = output_dir
         self.trim = trim
@@ -28,32 +28,31 @@ class TrimFiles:
         """
         Trim the file
         :param file_:
-        :return:
+        :return: extension
         """
         filename, ext = file_.split(".")[:2]
 
         if self.trim is None:
-            print(colored("Trimming with trim_galore...", "yellow"))
+            print(colored("Trimming with fastx_trimmer default trims...", "yellow"))
 
-            sub_run([self.galore, "--path_to_cutadapt ~/.local/bin/cutadapt",
-                     file_.replace(f".{ext}.gz", f".{ext}"), "-o",
-                     f"{self.outdir}/Preprocessing/trimmed"],
-                    stdout=subprocess.STDOUT, text=True, check=True)
+            subprocess.run(["fastx_trimmer", "-i", file_.replace(f".{ext}.gz", f".{ext}"), "-o",
+                            f"{self.outdir}/Preprocessing/trimmed/{filename}_trimmed.{ext}"],
+                           stdout=subprocess.STDOUT, text=True, check=True)
 
         else:
             print(colored("Trimming with fastx_trimmer...", "yellow"))
             sep_trim = self.trim.split("-")
 
             if len(sep_trim) == 1:
-                sub_run(["fastx_trimmer", "-l", self.trim, "-i",
-                         file_.replace(f".{ext}.gz", f".{ext}"), "-o",
-                         f"{self.outdir}/Preprocessing/trimmed/{filename}_trimmed.{ext}"],
-                        stdout=subprocess.STDOUT, text=True, check=True)
+                subprocess.run(["fastx_trimmer", "-l", self.trim, "-i",
+                                file_.replace(f".{ext}.gz", f".{ext}"), "-o",
+                                f"{self.outdir}/Preprocessing/trimmed/{filename}_trimmed.{ext}"],
+                               stdout=subprocess.STDOUT, text=True, check=True)
             else:
-                sub_run(["fastx_trimmer", "-f", sep_trim[0], "-l", sep_trim[1], "-i",
-                         file_.replace(f".{ext}.gz", f".{ext}"), "-o",
-                         f"{self.outdir}/Preprocessing/trimmed/{filename}_trimmed.{ext}"],
-                        stdout=subprocess.STDOUT, text=True, check=True)
+                subprocess.run(["fastx_trimmer", "-f", sep_trim[0], "-l", sep_trim[1], "-i",
+                                file_.replace(f".{ext}.gz", f".{ext}"), "-o",
+                                f"{self.outdir}/Preprocessing/trimmed/{filename}_trimmed.{ext}"],
+                               stdout=subprocess.STDOUT, text=True, check=True)
 
     def multi_trim(self, fastqdir):
         """
@@ -65,9 +64,8 @@ class TrimFiles:
         # Get the files of the fastq directory
         files = glob.glob(f"{fastqdir}/*.gz")
         # Form the processes
-        processes = [Process(target=self.trimmer, args=(file_,)) for file_ in files]
+        with confut.ProcessPoolExecutor() as executor:
+            results = executor.map(self.trimmer, files)
 
-        for process in processes:
-            process.start()
-        for process in processes:
-            process.join()
+        for result in results:
+            print(result)

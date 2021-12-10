@@ -11,6 +11,7 @@ __status__ = "WIP"
 __version__ = "0.1"
 
 import subprocess
+from termcolor import colored
 
 
 class FeatureCount:
@@ -27,8 +28,10 @@ class FeatureCount:
         """
 
         """
-        subprocess.run([self.feature_count,"-a", {self.gtffile},
-                        "-o", f"{self.outputdir}/RawData/counts/geneCounts.txt", f"{self.outputdir}Preprocessing/markDuplicates/*_sorted.bam"],
+        print(colored("Using featureCount...", "blue", attrs=["bold"]))
+        subprocess.run([self.feature_count, "-a", {self.gtffile},
+                        "-o", f"{self.outputdir}/RawData/counts/geneCounts.txt",
+                        f"{self.outputdir}Preprocessing/markDuplicates/*_sorted.bam"],
                        stdout=subprocess.STDOUT, text=True, check=True)
 
 

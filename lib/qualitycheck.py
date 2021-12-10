@@ -7,7 +7,7 @@ __version__ = 1.0
 
 import glob
 import subprocess
-from multiprocessing import Process
+import concurrent.futures as confut
 from termcolor import colored
 
 
@@ -42,10 +42,8 @@ class QualityCheck:
         # Get all .gz files
         files = glob.glob(f"{fastqdir}/*.gz")
         # Form the processes
-        processes = [Process(target=self.check, args=(file,)) for file in files]
+        with confut.ProcessPoolExecutor() as executor:
+            results = executor.map(self.check, files)
 
-        # Process
-        for process in processes:
-            process.start()
-        for process in processes:
-            process.join()
+        for result in results:
+            print(result)
