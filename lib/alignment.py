@@ -1,8 +1,9 @@
 """
-This module is to align the sequences in the files with the trimmed reads from the trim_files module.
-# The trimmed reads are obtained from the trimmed reads folder or directly from the other module.
+This module is to align the sequences in the files with the trimmed reads
+from the trim_files module. The trimmed reads are obtained from the trimmed reads folder or directly
+from the other module.
 The log file of the alignment is written to the following folder: "Results/Alignment".
-This script also creates the .bam file for futher use.
+This script also creates the .bam file for further use.
 """
 
 # METADATA VARIABLES
@@ -71,7 +72,6 @@ class Alignment:
     def paired_finder(self):
         """
         This function goes through the list of paired sequences and combines the 2 that are paired.
-        :return:
         """
         for file in self.unique_filenames_paired:
             sequence_name = file[0].split("_")
@@ -82,11 +82,12 @@ class Alignment:
                 self.paired_files[sequence_name] = x
                 self.paired_files[sequence_name].append(file)
 
-    def align(self, file):
+    def align(self, file_):
         """
         This function aligns the sequences in the files to the genome generated beforehand.
+        :param file_:
         """
-        filename = file.split("/")
+        filename = file_.split("/")
         fastq_name = filename[0].split(".")
         subprocess.run(["hisat2", "-x", f"./{self.genome}", "-U", f"{filename}", "2>",
                         f"{self.outputdir}/Results/alignment/{fastq_name.replace('_trimmed', '')}"
@@ -99,6 +100,7 @@ class Alignment:
         """
         This functions aligns the paired sequences in the files to the genome generated beforehand
         The input of this file needs to be 2 reads.
+        :param files:
         """
         file_names = []
         for file in files:

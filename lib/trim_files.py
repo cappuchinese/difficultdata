@@ -32,10 +32,11 @@ class TrimFiles:
         """
         filename, ext = file_.split(".")[:2]
 
+        # TODO find new trimmer
         if self.trim is None:
-            print(colored("Trimming with fastx_trimmer default trims...", "yellow"))
+            print(colored("Trimming with Cutadapt default trims...", "yellow"))
 
-            subprocess.run(["fastx_trimmer", "-i", file_.replace(f".{ext}.gz", f".{ext}"), "-o",
+            subprocess.run(["cutadapt", "-a", "", file_.replace(f".{ext}.gz", f".{ext}"), "-o",
                             f"{self.outdir}/Preprocessing/trimmed/{filename}_trimmed.{ext}"],
                            stdout=subprocess.STDOUT, text=True, check=True)
 
