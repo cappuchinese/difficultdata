@@ -6,13 +6,16 @@ __author__ = "Lisa Hu"
 __version__ = 1.0
 
 import os
+import shutil
 import sys
+import glob
 import subprocess
+from termcolor import colored
 
 
-class CreateDirs:
+class PipelineFuncs:
     """
-    Create the necessary dictionaries
+    Functions used in the pipeline
     """
     def __init__(self, output_dir):
         directory = str(output_dir)
@@ -42,14 +45,14 @@ class CreateDirs:
         """
         return f"Output directory: {self.outdir}"
 
-    def build_outdir(self):
+    def _build_outdir(self):
         """
         Check if output directory exist, otherwise create it.
         """
         if not os.path.exists(self.outdir):
             os.makedirs(self.outdir)
 
-    def extend_outdir(self):
+    def _extend_outdir(self):
         """
         Check if Preprocessing directory exist, otherwise create it.
         """
@@ -62,7 +65,7 @@ class CreateDirs:
             os.makedirs(f"{self.outdir}/Preprocessing/mergeSam")
             os.makedirs(f"{self.outdir}/Preprocessing/markDuplicates")
 
-    def create_resdir(self):
+    def _create_resdir(self):
         """
         Check if Results directory exist, otherwise create it.
         """
@@ -72,7 +75,7 @@ class CreateDirs:
             os.makedirs(f"{self.outdir}/Results/fastQC")
             os.makedirs(f"{self.outdir}/Results/multiQC")
 
-    def create_codedir(self):
+    def _create_codedir(self):
         """
         Check if Code directory exist, otherwise create it.
         """
@@ -81,7 +84,7 @@ class CreateDirs:
             os.makedirs(f"{self.outdir}/Code/aligningPipeline")
             os.makedirs(f"{self.outdir}/Code/analysis")
 
-    def create_rawdir(self):
+    def _create_rawdir(self):
         """
         Check if RawData directory exist, otherwise create it.
         """
@@ -92,10 +95,28 @@ class CreateDirs:
 
     def create_all(self):
         """
-        Run all the functions written above
+        Run all the directory methods
         """
-        self.build_outdir()
-        self.extend_outdir()
-        self.create_resdir()
-        self.create_codedir()
-        self.create_rawdir()
+        self._build_outdir()
+        self._extend_outdir()
+        self._create_resdir()
+        self._create_codedir()
+        self._create_rawdir()
+
+    def copy_aligningcode(self):
+        """
+        TODO docstring copy
+        :return:
+        """
+        print(colored("Transfering first code files...", "blue", attrs=["bold"]))
+        for files in glob.glob(f"{os.getcwd()}/*.py"):
+            pythonfile = files.split("/")[-1]
+            subprocess.run(["cp", files, self.outdir, "Code/aligningPipeline/", pythonfile])
+
+    def remove_folders(self):
+        """
+        Remove unnecessary folders
+        :return:
+        """
+        if os.path.exists(f"{self.outdir}/Preprocessing/"):
+            shutil.rmtree(f"{self.outdir}/Preprocessing/")

@@ -14,9 +14,13 @@ import argparse
 import configparser
 
 # Import self created modules
-from lib.create_dirs import CreateDirs
+from lib.alignment import Alignment
+from lib.create_count import FeatureCount
 from lib.fasta_processing import FastaProcessing
 from lib.get_info import GenomeInfo
+# from lib.perform_multiqc import
+from lib.pipeline_funcs import PipelineFuncs
+from lib.preprocessing import Preprocessing
 from lib.qualitycheck import QualityCheck
 from lib.trim_files import TrimFiles
 
@@ -68,7 +72,7 @@ def main():
     config = read_config()
 
     # Create all the dictionaries
-    dirs = CreateDirs(args.outputDir)
+    dirs = PipelineFuncs(args.outputDir)
     dirs.create_all()
 
     # Perform quality check
