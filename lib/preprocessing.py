@@ -16,39 +16,61 @@ import re
 import os
 import concurrent.futures
 import glob
+from termcolor import colored
 
-# CLASSES
+# TODO rewrite os.system to subprocess.run
+
+
 class Preprocessing:
-    """ Desc """
-    def __init__(self, args):
-        """"OUTPUT MOET NOG VERANDER WORDEN NAAR ARGS.OUTPUT OFZO"""
-        self.outputDir = "output/Preprocessing"
-        self.files = glob.glob(f'{self.outputDir}/aligned/*.bam')
+    """
+    TODO class docstring
+    """
+    def __init__(self, output_dir):
+        """"
+        TODO OUTPUT MOET NOG VERANDER WORDEN NAAR ARGS.OUTPUT OFZO
+        """
+        self.outputDir = output_dir
 
-    def runPicard(self):
+    def run_picard(self):
+        """
+        TODO docstring
+        TODO commenting
+        :return:
+        """
+        print(colored("Perform the processing steps necessary to create count file...",
+                      "blue", attrs=["bold"]))
+        files = glob.glob(f'{self.outputDir}/aligned/*.bam')
         os.system(f"mkdir {self.outputDir}/temp")
         executor = concurrent.futures.ProcessPoolExecutor()
-        executor.map(self.processFile, self.files)
+        executor.map(self.process_file, files)
         executor.shutdown()
         os.system(f"rm -r {self.outputDir}/temp")
 
-    def processFile(self, file):
+    def process_file(self, file):
+        """
+        TODO docstring
+        TODO commenting
+        :param file:
+        :return:
+        """
         os.system(f"cp {file} {self.outputDir}/temp")
         file_name = re.search(r"[^/]+(?=\.bam)", file).group(0)
         file = f"{self.outputDir}/temp/{file_name}.bam"
         programs = [("", "SortSam", "SO=queryname", f"java -jar tools/picard.jar"),
 
                     ("SortSam", "AddOrReplaceReadGroups",
-                     f"LB={file_name} PU={file_name} SM={file_name} PL=illumina CREATE_INDEX=true", f"java -jar tools/picard.jar"),
+                     f"LB={file_name} PU={file_name} SM={file_name} PL=illumina CREATE_INDEX=true",
+                     "java -jar tools/picard.jar"),
 
-                    ("AddOrReplaceReadGroups", "FixMateInformation", "", f"java -jar tools/picard.jar"),
+                    ("AddOrReplaceReadGroups", "FixMateInformation", "",
+                     "java -jar tools/picard.jar"),
 
                     ("FixMateInformation", "MergeSamFiles", "CREATE_INDEX=true USE_THREADING=true",
-                     f"java -jar tools/picard.jar"),
+                     "java -jar tools/picard.jar"),
 
-                    ("MergeSamFiles", "MarkDuplicates",
-                     f"CREATE_INDEX=true METRICS_FILE={self.outputDir}/markDuplicates/{file_name}.metrics.log",
-                     f"java -jar tools/picard.jar"),
+                    ("MergeSamFiles", "MarkDuplicates", "CREATE_INDEX=true",
+                     f"METRICS_FILE={self.outputDir}/markDuplicates/{file_name}.metrics.log",
+                     "java -jar tools/picard.jar"),
 
                     ("MarkDuplicates", "sort -n", "", "samtools")]
 
