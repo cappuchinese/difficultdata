@@ -5,6 +5,7 @@ Module that trims the files
 __author__ = "Lisa Hu"
 __version__ = 1.0
 
+import os
 import subprocess
 import glob
 import concurrent.futures as confut
@@ -19,10 +20,11 @@ class TrimFiles:
     fastx_trimmer requires an end bp or a beginning and an end bp for the trimming.
     """
 
-    def __init__(self, output_dir, trim, trim_galore):
+    def __init__(self, output_dir, trim, trim_galore, cutadapt):
         self.outdir = output_dir
         self.trim = trim
         self.galore = trim_galore
+        self.cutadapt = cutadapt
 
     def trimmer(self, file_):
         """
@@ -30,14 +32,14 @@ class TrimFiles:
         :param file_:
         :return: extension
         """
-        filename, ext = file_.split(".")[:2]
+        filename, ext = file_.split(".")
 
-        # TODO find new trimmer
         if self.trim is None:
-            print(colored("Trimming with Cutadapt default trims...", "yellow"))
+            print(colored("Trimming with TrimGalore...", "yellow"))
 
-            subprocess.run(["cutadapt", "-a", "", file_.replace(f".{ext}.gz", f".{ext}"), "-o",
-                            f"{self.outdir}/Preprocessing/trimmed/{filename}_trimmed.{ext}"],
+            subprocess.run([self.galore, "--path_to_cutadapt", self.cutadapt,
+                            file_.replace(f".{ext}.gz", f".{ext}"), "-o",
+                            f"{self.outdir}/Preprocessing/trimmed/"],
                            stdout=subprocess.STDOUT, text=True, check=True)
 
         else:
@@ -64,9 +66,30 @@ class TrimFiles:
 
         # Get the files of the fastq directory
         files = glob.glob(f"{fastqdir}/*.gz")
+        processed_files = []
+
+        for file_ in files:
+            # Split to filenames
+            full_filename = file_.split("/")[-1]
+            filename, ext = full_filename.split(".")[:2]
+
+            # Copy the gzipped files to RawData
+            print(colored("Copy .gz files to RawData", "yellow"))
+            if not os.path.exists(f"{self.outdir}/Rawdata/fastqFiles/{full_filename}"):
+                subprocess.run(["cp", "-v", file_,
+                                f"{self.outdir}/RawData/fastqFiles/{full_filename}"],
+                               stdout=subprocess.STDOUT, text=True, check=True)
+
+            # Unzip the files for trimming
+            print(colored("Unzip the files for trimming", "yellow"))
+            if not os.path.exists(f"{fastqdir}/{filename}.{ext}"):
+                subprocess.run(["gunzip", "-vk", file_],
+                               stdout=subprocess.STDOUT, text=True, check=True)
+            processed_files.append(f"{fastqdir}/{filename}.{ext}")
+
         # Form the processes
         with confut.ProcessPoolExecutor() as executor:
-            results = executor.map(self.trimmer, files)
+            results = executor.map(self.trimmer, processed_files)
 
         for result in results:
             print(result)
