@@ -34,6 +34,7 @@ class Alignment:
         self.extension = r"f[ast]*q"
         self.genome = genomehs2
 
+        self.files = glob.glob(f"{self.outputdir}/Preprocessing/trimmed/*.{self.extension}")
         self.unique_filenames_unpaired = []
         self.unique_filenames_paired = []
         self.unique_filenames = []
@@ -48,16 +49,21 @@ class Alignment:
         print(colored("Starting the alignment process", "blue", attrs=["bold"]))
 
         # Looping through the trimmed files
-        for files in glob.glob(f"{self.outputdir}/Preprocessing/trimmed/*.{self.extension}"):
-            if files not in self.unique_filenames:
-                # Add the unique filenames to a list
-                self.unique_filenames.append(files)
-                if len(files.split("_")) == 3:
-                    # If there are 3 parts in the filename, it means a paired alignment
-                    self.unique_filenames_paired.append(files)
-                else:
-                    # Else it is an unpaired alignment
-                    self.unique_filenames_unpaired.append(files)
+        for files in self.files:
+            # checking if the file name is unique
+            unique_flag = self.check_unique(files)
+            if unique_flag:
+                if files not in self.unique_filenames:
+                    # Add the unique filenames to a list
+                    self.unique_filenames.append(files)
+                    if len(files.split("_")) == 3:
+                        # If there are 3 parts in the filename, it means a paired alignment
+                        self.unique_filenames_paired.append(files)
+                    else:
+                        # Else it is an unpaired alignment
+                        self.unique_filenames_unpaired.append(files)
+            else:
+                print(f"Duplicate file detected: {files}, skipped")
 
         # Form the processes
         with concurrent.futures.ProcessPoolExecutor() as executor:
@@ -68,6 +74,21 @@ class Alignment:
             print(result)
         for result in paired_alignments:
             print(result)
+
+    def check_unique(self, file):
+        """
+        simple function to compare a given file name with the list of files, to check if its a unique name
+
+        :PARAM: file: a file name
+        :RETURN: check_f: a TRUE or FALSE flag to be given back
+        """
+
+        check_f = False
+
+        if self.files.count(file) == 1:
+            check_f = True
+
+        return check_f
 
     def paired_finder(self):
         """
