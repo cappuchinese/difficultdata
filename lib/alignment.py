@@ -11,7 +11,7 @@ __author__ = "Dennis Haandrikman & Mats Slik"
 __status__ = "Alignment script, WIP"
 __version__ = "0.8"
 
-# Import modules
+# IMPORTS
 import concurrent.futures
 import glob
 import subprocess
@@ -21,7 +21,6 @@ from termcolor import colored
 class Alignment:
     """
     TODO class docstring
-    TODO colored prints
     TODO Second pass over all docstrings for improvement
     """
 
@@ -66,11 +65,14 @@ class Alignment:
                         # Else it is an unpaired alignment
                         self.unique_filenames_unpaired.append(files)
             else:
-                print(f"Duplicate file detected: {files}, skipped")
+                print("Duplicate file detected: " + colored(files, "green") + " -> skipped")
 
         # If pair-ended files are included, attempt to combine the pairs
         if len(self.unique_filenames_paired) > 1:
-            self.paired_finder()
+            self._paired_finder()
+
+        print(colored("Amount of unpaired: ", "yellow") + self.unique_filenames_unpaired)
+        print(colored("Amount of paired: ", "yellow") + self.paired_files)
 
         # Form the processes
         with concurrent.futures.ProcessPoolExecutor() as executor:
@@ -99,7 +101,7 @@ class Alignment:
 
         return check_f
 
-    def paired_finder(self):
+    def _paired_finder(self):
         """
         This function goes through the list of paired sequences and combines the 2 that are paired.
         It also sorts the files so that the r1 sequence is always the first in the list.

@@ -2,9 +2,11 @@
 Module to check the quality
 """
 
+# META VARIABLES
 __author__ = "Lisa Hu"
 __version__ = 1.0
 
+# IMPORTS
 import glob
 import subprocess
 import concurrent.futures as confut

@@ -2,9 +2,11 @@
 Module holds all the functions that do not need multiprocessing or multiple functional steps.
 """
 
+# META VARIABLES
 __author__ = "Lisa Hu"
 __version__ = 1.0
 
+# IMPORTS
 import os
 import shutil
 import sys
@@ -24,7 +26,8 @@ class PipelineFuncs:
 
         # Empty output directory first
         if not len(os.listdir(output_dir)) == 0:
-            print("Output directory is not empty. Delete all files and continue? (y/n)")
+            print(colored("Output directory is not empty. Delete all files and continue? (y/n)",
+                          "green"))
             answer = input().lower()
 
             # Empty the dictionary
@@ -96,6 +99,7 @@ class PipelineFuncs:
         """
         Run all the directory methods
         """
+        print(colored("Creating all the dictionaries...", "blue", attrs=["bold"]))
         self._build_outdir()
         self._extend_outdir()
         self._create_resdir()
@@ -110,13 +114,15 @@ class PipelineFuncs:
     #     print(colored("Transfering first code files...", "blue", attrs=["bold"]))
     #     for files in glob.glob(f"{os.getcwd()}/*.py"):
     #         pythonfile = files.split("/")[-1]
-    #         subprocess.run(["cp", "-v", files, self.outdir, "Code/aligningPipeline/", pythonfile])
+    #         subprocess.run(["cp", "-v", files, self.outdir, "Code/aligningPipeline/", pythonfile],
+    #         stdout=subprocess.STDOUT, text=True, check=True)
 
     def remove_folders(self):
         """
         Remove unnecessary folders
         :return:
         """
+        print(colored("Removing Preprocessing folders...", "blue", attrs=["bold"]))
         if os.path.exists(f"{self.outdir}/Preprocessing/"):
             shutil.rmtree(f"{self.outdir}/Preprocessing/")
 
@@ -169,7 +175,8 @@ class PipelineFuncs:
         :return:
         """
         print(colored(f"Performing multiqc on {self.outdir}", "blue", attrs=["bold"]))
-        subprocess.run(["multiqc", self.outdir, "-o", f"{self.outdir}/Results/multiqc"])
+        subprocess.run(["multiqc", self.outdir, "-o", f"{self.outdir}/Results/multiqc"],
+                       stdout=subprocess.STDOUT, text=True, check=True)
 
     def write_file(self, gtffile):
         """
@@ -180,3 +187,27 @@ class PipelineFuncs:
                         "-o", f"{self.outdir}/RawData/counts/geneCounts.txt",
                         f"{self.outdir}Preprocessing/markDuplicates/*_sorted.bam"],
                        stdout=subprocess.STDOUT, text=True, check=True)
+
+    @staticmethod
+    def fasta_processing(genome_fasta, picard):
+        """
+        Check if the fasta files exist
+        :param genome_fasta:
+        :param picard:
+        """
+        print(colored("Processing genome fasta...", "blue", attrs=["bold"]))
+
+        # Check if fasta.dict has been created
+        if not os.path.isfile(genome_fasta.replace("fa", "dict")):
+            print(colored("Creating fasta.dict...", "yellow"))
+            # If not, create the file
+            subprocess.run(f"java -jar {picard} CreateSequenceDictionary R={genome_fasta} "
+                           f"O={genome_fasta.replace('fa', 'dict')})", stdout=subprocess.STDOUT,
+                           text=True, check=True)
+
+        # Check if fasta.fa.fai has been created
+        if not os.path.isfile(f"{genome_fasta}.fai"):
+            print(colored("Creating fasta.fa.fai...", "yellow"))
+            # If not, create the file
+            subprocess.run(["samtools", "faidx", f"{genome_fasta}"], stdout=subprocess.STDOUT,
+                           text=True, check=True)

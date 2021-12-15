@@ -2,9 +2,11 @@
 Module that trims the files
 """
 
+# META VARIABLES
 __author__ = "Lisa Hu"
 __version__ = 1.0
 
+# IMPORTS
 import os
 import subprocess
 import glob
