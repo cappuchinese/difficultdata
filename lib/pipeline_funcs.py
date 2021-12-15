@@ -1,5 +1,5 @@
 """
-Module to make all the dictionaries that are going to be used
+Module holds all the functions that do not need multiprocessing or multiple functional steps.
 """
 
 __author__ = "Lisa Hu"
@@ -8,7 +8,6 @@ __version__ = 1.0
 import os
 import shutil
 import sys
-import glob
 import subprocess
 from termcolor import colored
 
@@ -103,15 +102,15 @@ class PipelineFuncs:
         self._create_codedir()
         self._create_rawdir()
 
-    def copy_aligningcode(self):
-        """
-        TODO docstring copy
-        :return:
-        """
-        print(colored("Transfering first code files...", "blue", attrs=["bold"]))
-        for files in glob.glob(f"{os.getcwd()}/*.py"):
-            pythonfile = files.split("/")[-1]
-            subprocess.run(["cp", "-v", files, self.outdir, "Code/aligningPipeline/", pythonfile])
+    # def copy_aligningcode(self):
+    #     """
+    #     Copy the aligning code to Code/aligningPipeline/
+    #     :return:
+    #     """
+    #     print(colored("Transfering first code files...", "blue", attrs=["bold"]))
+    #     for files in glob.glob(f"{os.getcwd()}/*.py"):
+    #         pythonfile = files.split("/")[-1]
+    #         subprocess.run(["cp", "-v", files, self.outdir, "Code/aligningPipeline/", pythonfile])
 
     def remove_folders(self):
         """
@@ -163,3 +162,21 @@ class PipelineFuncs:
         print(colored("Make sure the chosen organism is valid!", "red"))
         print("Use --help for more information")
         return None, None, None
+
+    def perform_multiqc(self):
+        """
+        Perform multiQC
+        :return:
+        """
+        print(colored(f"Performing multiqc on {self.outdir}", "blue", attrs=["bold"]))
+        subprocess.run(["multiqc", self.outdir, "-o", f"{self.outdir}/Results/multiqc"])
+
+    def write_file(self, gtffile):
+        """
+        TODO docstring
+        """
+        print(colored("Using featureCounts...", "blue", attrs=["bold"]))
+        subprocess.run(["featureCounts", "-a", gtffile,
+                        "-o", f"{self.outdir}/RawData/counts/geneCounts.txt",
+                        f"{self.outdir}Preprocessing/markDuplicates/*_sorted.bam"],
+                       stdout=subprocess.STDOUT, text=True, check=True)
