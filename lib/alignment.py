@@ -1,15 +1,11 @@
 """
-This module is to align the sequences in the files with the trimmed reads
-from the trim_files module. The trimmed reads are obtained from the trimmed reads folder or
-directly from the other module.
-The log file of the alignment is written to the following folder: "Results/Alignment".
-This script also creates the .bam file for further use.
+Module to align the trimmed read files against a genome
 """
 
 # METADATA VARIABLES
 __author__ = "Dennis Haandrikman & Mats Slik"
 __status__ = "Alignment script, WIP"
-__version__ = "0.8"
+__version__ = "1.0"
 
 # IMPORTS
 import concurrent.futures
@@ -20,16 +16,19 @@ from termcolor import colored
 
 class Alignment:
     """
-    TODO class docstring
-    TODO Second pass over all docstrings for improvement
+    This class is for the functionality of aligning paired & unpaired trimmed reads to an
+    established hisat2 genome and then output the alignments as a .bam file.
+    The trimmed reads are obtained from the trimmed reads folder.
+    The log file of the alignment is written to the following folder: "Results/Alignment".
     """
 
     def __init__(self, outputdir, genomehs2):
         """
         Initialize the class and all the arguments needed.
 
-        :param outputdir: a string, the output directory
-        :param genomehs2: genomeHiSat2 is the reference genome the alignments will be done against
+        :param outputdir:   a string, the output directory
+        :param genomehs2:   genomeHiSat2 is the reference genome,
+                            that the alignments will be aligned against
         """
         self.outputdir = outputdir
         self.extension = r"f[ast]*q"
@@ -76,13 +75,10 @@ class Alignment:
 
         # Form the processes
         with concurrent.futures.ProcessPoolExecutor() as executor:
-            unpaired_alignments = executor.map(self.align, self.unique_filenames_unpaired)
-            paired_alignments = executor.map(self.paired_align, self.paired_files)
+            executor.map(self.align, self.unique_filenames_unpaired)  # The unpaired alignments
+            executor.map(self.paired_align, self.paired_files)  # The paired alignments
 
-        for result in unpaired_alignments:
-            print(result)
-        for result in paired_alignments:
-            print(result)
+        print(colored("Finished with alignment of the files.", " yellow"))
 
     def check_unique(self, file):
         """
@@ -127,7 +123,9 @@ class Alignment:
     def align(self, file):
         """
         This function aligns the sequences in the files to the genome generated beforehand.
+
         :param file: a string, the name & location of the file
+        :OUTPUT: a .bam file, returns the alignment of unpaired reads to the genome in a .bam file
         """
         filename = file.split("/")
         fastq_name = filename[0].split(".")
@@ -142,7 +140,10 @@ class Alignment:
         """
         This functions aligns the paired sequences in the files to the genome generated beforehand
         The input of this file needs to be 2 reads.
-        :param files:
+
+        :param files:   a list with strings, a list of the pathway & name of 2 files.
+        :OUTPUT:    a .bam file, output of the alignment of paired reads to the genome
+                    in a .bam file
         """
         file_names = []
         # Extract the names of both files
