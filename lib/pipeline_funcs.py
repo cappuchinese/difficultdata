@@ -109,7 +109,7 @@ class PipelineFuncs:
     # def copy_aligningcode(self):
     #     """
     #     Copy the aligning code to Code/aligningPipeline/
-    #     :return:
+    #
     #     """
     #     print(colored("Transfering first code files...", "blue", attrs=["bold"]))
     #     for files in glob.glob(f"{os.getcwd()}/*.py"):
@@ -120,7 +120,6 @@ class PipelineFuncs:
     def remove_folders(self):
         """
         Remove unnecessary folders
-        :return:
         """
         print(colored("Removing Preprocessing folders...", "blue", attrs=["bold"]))
         if os.path.exists(f"{self.outdir}/Preprocessing/"):
@@ -172,7 +171,6 @@ class PipelineFuncs:
     def perform_multiqc(self):
         """
         Perform multiQC
-        :return:
         """
         print(colored(f"Performing multiqc on {self.outdir}", "blue", attrs=["bold"]))
         subprocess.run(["multiqc", self.outdir, "-o", f"{self.outdir}/Results/multiqc"],
@@ -180,7 +178,9 @@ class PipelineFuncs:
 
     def write_file(self, gtffile):
         """
-        TODO docstring
+
+        perform featureCounts
+        :param: gtffile: genome annotation file path
         """
         print(colored("Using featureCounts...", "blue", attrs=["bold"]))
         subprocess.run(["featureCounts", "-a", gtffile,
@@ -192,8 +192,8 @@ class PipelineFuncs:
     def fasta_processing(genome_fasta, picard):
         """
         Check if the fasta files exist
-        :param genome_fasta:
-        :param picard:
+        :param genome_fasta: path to genome fasta file
+        :param picard: path to the picard tool
         """
         print(colored("Processing genome fasta...", "blue", attrs=["bold"]))
 
