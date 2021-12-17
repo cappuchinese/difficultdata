@@ -1,8 +1,5 @@
-#!/usr/bin/env python3
-
 """
-    usage:
-
+Module which handles the preprocessing needs of the files using picard and samtools programs.
 """
 
 # METADATA VARIABLES
@@ -11,51 +8,52 @@ __status__ = "WIP"
 __version__ = "0.5"
 
 # IMPORTS
-import sys
+import subprocess
 import re
-import os
 import concurrent.futures
 import glob
 from termcolor import colored
 
-# TODO rewrite os.system to subprocess.run
-
-
 class Preprocessing:
     """
-    TODO class docstring
+    Main class which handless the output directory and all nececary bam programs.
     """
     def __init__(self, output_dir):
         """"
-        TODO OUTPUT MOET NOG VERANDER WORDEN NAAR ARGS.OUTPUT OFZO
+        Initialises the object so that the output dir is recognized.
         """
-        self.outputDir = output_dir
+        self.outputDir = args.outputDir
 
     def run_picard(self):
         """
-        TODO docstring
-        TODO commenting
-        :return:
+        Detects the relevant files so that the programs can be executed on them.
+        Calls upon process_file function for every bam file found.
         """
         print(colored("Perform the processing steps necessary to create count file...",
                       "blue", attrs=["bold"]))
         files = glob.glob(f'{self.outputDir}/aligned/*.bam')
-        os.system(f"mkdir {self.outputDir}/temp")
+        # Creates a temporary directory in which the module will apply all nececary steps leaidng up to the final file.
+        subprocess.run(f"mkdir {self.outputDir}/temp", shell=True)
+        # Initialises the multiprocessing module so all files can be finished seperately.
         executor = concurrent.futures.ProcessPoolExecutor()
         executor.map(self.process_file, files)
         executor.shutdown()
-        os.system(f"rm -r {self.outputDir}/temp")
+        # Remove the unnecessary files used in achieving the end file.
+        subprocess.run(f"rm -r {self.outputDir}/temp", shell=True)
 
     def process_file(self, file):
         """
-        TODO docstring
-        TODO commenting
-        :param file:
-        :return:
+        Executes the programs which are specified in the programs list on the preprocessing files found.
         """
-        os.system(f"cp {file} {self.outputDir}/temp")
+        # In case the final directory doesn't exist, create it.
+        subprocess.run(f"mkdir -p {self.outputDir}/markDuplicates/", shell=True)
+        subprocess.run(f"cp {file} {self.outputDir}/temp", shell=True)
+        # Retrieve the file nasme from the file path.
         file_name = re.search(r"[^/]+(?=\.bam)", file).group(0)
         file = f"{self.outputDir}/temp/{file_name}.bam"
+
+        # A list of program parameters to be called with the programs. Every tuple entry specifies something
+        # [0] = Prior program, [1] = Next program, [2] = Program options, [3] = Command prefix.
         programs = [("", "SortSam", "SO=queryname", f"java -jar tools/picard.jar"),
 
                     ("SortSam", "AddOrReplaceReadGroups",
@@ -73,11 +71,14 @@ class Preprocessing:
                      "java -jar tools/picard.jar"),
 
                     ("MarkDuplicates", "sort -n", "", "samtools")]
-
+        # Run every program on the file.
+        # Append program names to file names as identifiers when looking for the previous file.
         for program in programs:
-            os.system(f"{program[3]} {program[1]} "
+            subprocess.run(f"{program[3]} {program[1]} "
                       f"I={file[:-4]}{program[0][0:4]}.bam "
                       f"O={file[:-4]}{program[1][0:4]}.bam "
-                      f"{program[2]}")
+                      f"{program[2]}", shell=True)
 
-        os.system(f"mv {self.outputDir}/temp/{file_name}Sort.bam {self.outputDir}/markDuplicates/{file_name}_sorted.bam")
+        # Complete the preprocessing by moving the final file to the markDuplicates directory.
+        subprocess.run(f"mv {self.outputDir}/temp/{file_name}Sort.bam "
+                       f"{self.outputDir}/markDuplicates/{file_name}_sorted.bam", shell=True)
