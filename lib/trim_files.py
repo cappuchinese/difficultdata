@@ -39,8 +39,7 @@ class TrimFiles:
         if self.trim is None:
             print(colored("Trimming with TrimGalore...", "yellow"))
 
-            subprocess.run([self.galore, "--path_to_cutadapt", self.cutadapt,
-                            file_.replace(f".{ext}.gz", f".{ext}"), "-o",
+            subprocess.run([self.galore, file_.replace(f".{ext}.gz", f".{ext}"), "-o",
                             f"{self.outdir}/Preprocessing/trimmed/"],
                            stdout=subprocess.STDOUT, text=True, check=True)
 
