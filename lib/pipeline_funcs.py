@@ -176,14 +176,14 @@ class PipelineFuncs:
         subprocess.run(["multiqc", self.outdir, "-o", f"{self.outdir}/Results/multiqc"],
                        stdout=subprocess.STDOUT, text=True, check=True)
 
-    def write_file(self, gtffile):
+    def write_file(self, gtffile, feature_count):
         """
-
-        perform featureCounts
-        :param: gtffile: genome annotation file path
+        perform the script used to run the featureCounts tool
+        :param: gtffile:    a string, genome annotation file path
+        :OUTPUT:            2 files, a .txt with gene counts and a .bam file with marked duplicates
         """
         print(colored("Using featureCounts...", "blue", attrs=["bold"]))
-        subprocess.run(["featureCounts", "-a", gtffile,
+        subprocess.run([feature_count, "-a", gtffile,
                         "-o", f"{self.outdir}/RawData/counts/geneCounts.txt",
                         f"{self.outdir}Preprocessing/markDuplicates/*_sorted.bam"],
                        stdout=subprocess.STDOUT, text=True, check=True)

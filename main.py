@@ -72,8 +72,8 @@ def main():
     config = read_config()
 
     # Create all the dictionaries
-    dirs = PipelineFuncs(args.outputDir)
-    dirs.create_all()
+    pipeline_mod = PipelineFuncs(args.outputDir)
+    pipeline_mod.create_all()
 
     # Perform quality check
     quality = QualityCheck(args.outputDir)
@@ -82,6 +82,24 @@ def main():
     # Trim the files
     trimmer = TrimFiles(args.outputDir, args.trim, config["trimGalore"])
     trimmer.multi_trim(args.fastqDir)
+
+    # Determine right genome annotation
+    genome_hisat, gtf, genome_fasta = pipeline_mod.determine_genome_info(args.organism)
+
+    # Make sure the fasta file of the right organism was chosen
+    pipeline_mod.fasta_processing(genome_fasta, config["picard"])
+
+    # Perform alignment
+    alignment = Alignment(args.outputDir, genome_hisat)
+    alignment.main_process()
+
+    # Preprocessing
+    preprocessor = Preprocessing(args.outputDir)
+    preprocessor.run_picard()
+
+    # Generate count matrix
+    pipeline_mod.write_file(gtf, config["featureCounts"])
+    pipeline_mod.perform_multiqc()
 
     return 0
 
