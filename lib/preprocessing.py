@@ -14,15 +14,16 @@ import concurrent.futures
 import glob
 from termcolor import colored
 
+
 class Preprocessing:
     """
-    Main class which handless the output directory and all nececary bam programs.
+    Main class which handles the output directory and all necessary bam programs.
     """
     def __init__(self, output_dir):
         """"
         Initialises the object so that the output dir is recognized.
         """
-        self.outputDir = args.outputDir
+        self.outputDir = output_dir
 
     def run_picard(self):
         """
@@ -32,9 +33,10 @@ class Preprocessing:
         print(colored("Perform the processing steps necessary to create count file...",
                       "blue", attrs=["bold"]))
         files = glob.glob(f'{self.outputDir}/aligned/*.bam')
-        # Creates a temporary directory in which the module will apply all nececary steps leaidng up to the final file.
+        # Creates a temporary directory in which the module will apply all necessary steps
+        # leading up to the final file.
         subprocess.run(f"mkdir {self.outputDir}/temp", shell=True)
-        # Initialises the multiprocessing module so all files can be finished seperately.
+        # Initialises the multiprocessing module so all files can be finished separately.
         executor = concurrent.futures.ProcessPoolExecutor()
         executor.map(self.process_file, files)
         executor.shutdown()
@@ -43,16 +45,18 @@ class Preprocessing:
 
     def process_file(self, file):
         """
-        Executes the programs which are specified in the programs list on the preprocessing files found.
+        Executes the programs which are specified in the programs list
+        on the preprocessing files found.
         """
         # In case the final directory doesn't exist, create it.
         subprocess.run(f"mkdir -p {self.outputDir}/markDuplicates/", shell=True)
         subprocess.run(f"cp {file} {self.outputDir}/temp", shell=True)
-        # Retrieve the file nasme from the file path.
+        # Retrieve the file name from the file path.
         file_name = re.search(r"[^/]+(?=\.bam)", file).group(0)
         file = f"{self.outputDir}/temp/{file_name}.bam"
 
-        # A list of program parameters to be called with the programs. Every tuple entry specifies something
+        # A list of program parameters to be called with the programs.
+        # Every tuple entry specifies something
         # [0] = Prior program, [1] = Next program, [2] = Program options, [3] = Command prefix.
         programs = [("", "SortSam", "SO=queryname", f"java -jar tools/picard.jar"),
 
