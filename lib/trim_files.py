@@ -22,11 +22,10 @@ class TrimFiles:
     fastx_trimmer requires an end bp or a beginning and an end bp for the trimming.
     """
 
-    def __init__(self, output_dir, trim, trim_galore, cutadapt):
+    def __init__(self, output_dir, trim, trim_galore):
         self.outdir = output_dir
         self.trim = trim
         self.galore = trim_galore
-        self.cutadapt = cutadapt
 
     def trimmer(self, file_):
         """
