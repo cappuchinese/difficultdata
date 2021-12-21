@@ -15,10 +15,6 @@ import configparser
 
 # Import self created modules
 from lib.alignment import Alignment
-from lib.create_count import FeatureCount
-from lib.fasta_processing import FastaProcessing
-from lib.get_info import GenomeInfo
-# from lib.perform_multiqc import
 from lib.pipeline_funcs import PipelineFuncs
 from lib.preprocessing import Preprocessing
 from lib.qualitycheck import QualityCheck
@@ -38,10 +34,6 @@ def __arguments():
                              'alignment:\nHuman=hs\nMouse=mm\nMacaque=mmu\nRat=rn')
     parser.add_argument('-out', '--outputDir', required=True,
                         help='[REQUIRED] Pathways to output directory')
-    parser.add_argument('-s', '--seqType', required=True,
-                        help='[REQUIRED] Define SE for single end sequencing or '
-                             'PE for paired end sequencing')
-    parser.add_argument('-p', '--threads', help='Define number of threads to use')
     parser.add_argument('-t', '--trim', help='Define the last bp to keep for trimming')
 
     # Save all of the defined parameters in the variable args.
