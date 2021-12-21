@@ -4,8 +4,8 @@ Module which handles the preprocessing needs of the files using picard and samto
 
 # METADATA VARIABLES
 __author__ = "Orfeas Gkourlias"
-__status__ = "WIP"
-__version__ = "0.5"
+__status__ = "Ready to be test, WIP"
+__version__ = "1.0"
 
 # IMPORTS
 import subprocess
@@ -20,8 +20,10 @@ class Preprocessing:
     Main class which handles the output directory and all necessary bam programs.
     """
     def __init__(self, output_dir):
-        """"
+        """
         Initialises the object so that the output dir is recognized.
+        :param output_dir:      a string, contains the filepath for the output directory of this
+                                script
         """
         self.outputDir = output_dir
 
@@ -47,6 +49,8 @@ class Preprocessing:
         """
         Executes the programs which are specified in the programs list
         on the preprocessing files found.
+        :param file:        a string, contains the filepath & filename for the .bam file
+        :return:            a file, a sorted .bam file
         """
         # In case the final directory doesn't exist, create it.
         subprocess.run(f"mkdir -p {self.outputDir}/markDuplicates/", shell=True)
