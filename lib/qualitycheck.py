@@ -32,7 +32,8 @@ class QualityCheck:
         :param file: Fastq file
         """
         subprocess.run(["fastqc", file, "-o", f"{self.outdir}/Results/fastaQC"],
-                       stdout=subprocess.STDOUT, text=True, check=True)
+                       stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT,
+                       text=True, check=True)
 
     def multi_run(self, fastqdir):
         """
@@ -46,6 +47,4 @@ class QualityCheck:
         # Form the processes
         with confut.ProcessPoolExecutor() as executor:
             results = executor.map(self.check, files)
-
-        for result in results:
-            print(result)
+            print(colored("  Finished fastqc", "green"))

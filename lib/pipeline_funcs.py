@@ -24,6 +24,10 @@ class PipelineFuncs:
         if directory.endswith("/"):
             directory = directory.rstrip("/")
 
+        if not os.path.isdir(output_dir):
+            subprocess.run(["mkdir", output_dir], stdout=subprocess.PIPE, stdin=subprocess.PIPE,
+                           stderr=subprocess.STDOUT, text=True, check=True)
+
         # Empty output directory first
         if not len(os.listdir(output_dir)) == 0:
             print(colored("Output directory is not empty. Delete all files and continue? (y/n)",
@@ -32,12 +36,14 @@ class PipelineFuncs:
 
             # Empty the dictionary
             if answer == "y":
-                subprocess.run(["rm", "-rfv", f"~/{directory}/*"], stdout=subprocess.STDOUT,
+                subprocess.run(["rm", "-rfv", f"{directory}/*"], stdout=subprocess.PIPE,
+                               stdin=subprocess.PIPE, stderr=subprocess.STDOUT,
                                text=True, check=True)
 
             # Exit program if user does not want to empty the directory
             else:
-                sys.exit("Empty output directory before continuing. Exiting program...")
+                sys.exit(colored("Empty output directory before continuing. Exiting program...",
+                                 "red"))
 
         self.outdir = directory
 
@@ -174,7 +180,8 @@ class PipelineFuncs:
         """
         print(colored(f"Performing multiqc on {self.outdir}", "blue", attrs=["bold"]))
         subprocess.run(["multiqc", self.outdir, "-o", f"{self.outdir}/Results/multiqc"],
-                       stdout=subprocess.STDOUT, text=True, check=True)
+                       stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT,
+                       text=True, check=True)
 
     def write_file(self, gtffile, feature_count):
         """
@@ -186,7 +193,8 @@ class PipelineFuncs:
         subprocess.run([feature_count, "-a", gtffile,
                         "-o", f"{self.outdir}/RawData/counts/geneCounts.txt",
                         f"{self.outdir}Preprocessing/markDuplicates/*_sorted.bam"],
-                       stdout=subprocess.STDOUT, text=True, check=True)
+                       stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT,
+                       text=True, check=True)
 
     @staticmethod
     def fasta_processing(genome_fasta, picard):
@@ -203,11 +211,11 @@ class PipelineFuncs:
             # If not, create the file
             subprocess.run(f"java -jar {picard} CreateSequenceDictionary R={genome_fasta} "
                            f"O={genome_fasta.replace('fa', 'dict')})", stdout=subprocess.STDOUT,
-                           text=True, check=True)
+                           stdin=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, check=True)
 
         # Check if fasta.fa.fai has been created
         if not os.path.isfile(f"{genome_fasta}.fai"):
             print(colored("Creating fasta.fa.fai...", "yellow"))
             # If not, create the file
             subprocess.run(["samtools", "faidx", f"{genome_fasta}"], stdout=subprocess.STDOUT,
-                           text=True, check=True)
+                           stdin=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, check=True)

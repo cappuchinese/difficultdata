@@ -10,6 +10,8 @@ __version__ = 1.0
 import os
 import subprocess
 import glob
+import shutil
+import gzip
 import concurrent.futures as confut
 from termcolor import colored
 
@@ -36,26 +38,29 @@ class TrimFiles:
         filename, ext = file_.split(".")
 
         if self.trim is None:
-            print(colored("Trimming with TrimGalore...", "yellow"))
+            print(colored("  Trimming with TrimGalore...", "yellow"))
 
             subprocess.run([self.galore, file_.replace(f".{ext}.gz", f".{ext}"), "-o",
                             f"{self.outdir}/Preprocessing/trimmed/"],
-                           stdout=subprocess.STDOUT, text=True, check=True)
+                           stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT,
+                           text=True, check=True)
 
         else:
-            print(colored("Trimming with fastx_trimmer...", "yellow"))
+            print(colored("  Trimming with fastx_trimmer...", "yellow"))
             sep_trim = self.trim.split("-")
 
             if len(sep_trim) == 1:
                 subprocess.run(["fastx_trimmer", "-l", self.trim, "-i",
                                 file_.replace(f".{ext}.gz", f".{ext}"), "-o",
                                 f"{self.outdir}/Preprocessing/trimmed/{filename}_trimmed.{ext}"],
-                               stdout=subprocess.STDOUT, text=True, check=True)
+                               stdout=subprocess.PIPE, stdin=subprocess.PIPE,
+                               stderr=subprocess.STDOUT, text=True, check=True)
             else:
                 subprocess.run(["fastx_trimmer", "-f", sep_trim[0], "-l", sep_trim[1], "-i",
                                 file_.replace(f".{ext}.gz", f".{ext}"), "-o",
                                 f"{self.outdir}/Preprocessing/trimmed/{filename}_trimmed.{ext}"],
-                               stdout=subprocess.STDOUT, text=True, check=True)
+                               stdout=subprocess.PIPE, stdin=subprocess.PIPE,
+                               stderr=subprocess.STDOUT, text=True, check=True)
 
     def multi_trim(self, fastqdir):
         """
@@ -74,22 +79,27 @@ class TrimFiles:
             filename, ext = full_filename.split(".")[:2]
 
             # Copy the gzipped files to RawData
-            print(colored("Copy .gz files to RawData", "yellow"))
-            if not os.path.exists(f"{self.outdir}/Rawdata/fastqFiles/{full_filename}"):
+            print(colored("  Copy .gz files to RawData", "yellow"))
+            if not os.path.exists(f"{self.outdir}/RawData/fastqFiles/{full_filename}"):
                 subprocess.run(["cp", "-v", file_,
                                 f"{self.outdir}/RawData/fastqFiles/{full_filename}"],
-                               stdout=subprocess.STDOUT, text=True, check=True)
+                               stdout=subprocess.PIPE, stdin=subprocess.PIPE,
+                               stderr=subprocess.STDOUT, text=True, check=True)
 
             # Unzip the files for trimming
-            print(colored("Unzip the files for trimming", "yellow"))
+            print(colored("  Unzip the files for trimming", "yellow"))
             if not os.path.exists(f"{fastqdir}/{filename}.{ext}"):
-                subprocess.run(["gunzip", "-vk", file_],
-                               stdout=subprocess.STDOUT, text=True, check=True)
-            processed_files.append(f"{fastqdir}/{filename}.{ext}")
+                file_path = f"{self.outdir}/RawData/fastqFiles/{full_filename}"
+                with gzip.open(file_path, "rb") as zip_obj:
+                    with open(f"{self.outdir}/RawData/fastqFiles/{filename}.{ext}", "wb") as unzip:
+                        shutil.copyfileobj(zip_obj, unzip)
+            #     subprocess.run(["gzip", "-vd",
+            #                     f"{self.outdir}/Rawdata/fastqFiles/{full_filename}"],
+            #                    stdout=subprocess.PIPE, stdin=subprocess.PIPE,
+            #                    stderr=subprocess.STDOUT, text=True, check=True)
+            processed_files.append(f"{self.outdir}/RawData/fastqFiles/{filename}.{ext}")
 
         # Form the processes
         with confut.ProcessPoolExecutor() as executor:
             results = executor.map(self.trimmer, processed_files)
-
-        for result in results:
-            print(result)
+            print(colored("  Finished trimming", "green"))
