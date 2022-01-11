@@ -131,8 +131,7 @@ class PipelineFuncs:
         if os.path.exists(f"{self.outdir}/Preprocessing/"):
             shutil.rmtree(f"{self.outdir}/Preprocessing/")
 
-    @staticmethod
-    def determine_genome_info(identifier):
+    def determine_genome_info(self, identifier):
         """
         This module contains 3 different directories:
 
@@ -146,9 +145,9 @@ class PipelineFuncs:
         These directories are callable via the identifier
         :return: The directories according to the identifier
         """
-        organisms = {"hs": ["Genome/HiSat2/Homo_sapiens/GRCh38.92",
-                            "Genome/Homo_sapiens.GRCh38.92.gtf",
-                            "Genome/Homo_sapiens.GRCh38.dna_sm.primary_assembly.fa"],
+        organisms = {"hs": [f"{self.outdir}/Genome/HiSat2/Homo_sapiens/GRCh38.92",
+                            f"{self.outdir}/Genome/Homo_sapiens.GRCh38.84.gtf",
+                            f"{self.outdir}/Genome/Homo_sapiens.GRCh38.dna.primary_assembly.fa"],
 
                      "mmu": ["Genome/HiSat2/Macaca_mulatta/genome",
                              "Genome/Macaca_mulatta.Mmul_8.0.1.92.gtf",
