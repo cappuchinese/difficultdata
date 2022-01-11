@@ -1,5 +1,4 @@
 bin_packages.txt
-bin/
 RawTools
 venv
 lib/__pycache__
