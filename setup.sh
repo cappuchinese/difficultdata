@@ -34,3 +34,18 @@ if [[! -d bin/subread-2.0.3-source]]; then
   make -f Makefile.Linux
   cd ../../..
 fi
+
+# installation genome reference
+if [[! -d Genome]]; then
+  mkdir Genome
+  cd Genome
+  wget ftp://ftp.ensembl.org/pub/release-84/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
+  wget ftp://ftp.ensembl.org/pub/release-84/gtf/homo_sapiens/Homo_sapiens.GRCh38.84.gtf.gz
+  wget http://hgdownload.cse.ucsc.edu/goldenPath/hg38/database/snp144Common.txt.gz
+  gzip -d Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
+  gzip -d Homo_sapiens.GRCh38.84.gtf.gz
+  gzip -d snp144Common.txt.gz
+  awk 'BEGIN{OFS="\t"} {if($2 ~ /^chr/) {$2 = substr($2, 4)}; if($2 == "M") {$2 = "MT"} print}' snp144Common.txt > snp144Common.txt.ensembl
+  hisat2_extract_snps_haplotypes_UCSC.py genome.fa snp144Common.txt.ensembl genome
+  cd ..
+fi
