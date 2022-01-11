@@ -70,15 +70,15 @@ class Alignment:
         if len(self.unique_filenames_paired) > 1:
             self._paired_finder()
 
-        print(colored("Amount of unpaired: ", "yellow") + self.unique_filenames_unpaired)
-        print(colored("Amount of paired: ", "yellow") + self.paired_files)
+        print(colored("  Amount of unpaired: ", "yellow") + str(len(self.unique_filenames_unpaired)))
+        print(colored("  Amount of paired: ", "yellow") + str(len(self.paired_files)))
 
         # Form the processes
         with concurrent.futures.ProcessPoolExecutor() as executor:
             executor.map(self.align, self.unique_filenames_unpaired)  # The unpaired alignments
             executor.map(self.paired_align, self.paired_files)  # The paired alignments
 
-        print(colored("Finished with alignment of the files.", " yellow"))
+        print(colored("  Finished with alignment of the files.", "yellow"))
 
     def check_unique(self, file):
         """

@@ -11,6 +11,7 @@ import os
 import subprocess
 import glob
 import shutil
+import time
 import gzip
 import concurrent.futures as confut
 from termcolor import colored
@@ -76,28 +77,34 @@ class TrimFiles:
         for file_ in files:
             # Split to filenames
             full_filename = file_.split("/")[-1]
+            print(full_filename)
             filename, ext = full_filename.split(".")[:2]
 
             # Copy the gzipped files to RawData
             print(colored("  Copy .gz files to RawData", "yellow"))
+            print(os.path.exists(f"{self.outdir}/RawData/fastqFiles/{full_filename}"))
             if not os.path.exists(f"{self.outdir}/RawData/fastqFiles/{full_filename}"):
-                subprocess.run(["cp", "-v", file_,
+                cp_process = subprocess.Popen(["cp", "-v", file_,
                                 f"{self.outdir}/RawData/fastqFiles/{full_filename}"],
-                               stdout=subprocess.PIPE, stdin=subprocess.PIPE,
-                               stderr=subprocess.STDOUT, text=True, check=True)
+                                stdin=subprocess.PIPE,
+                               stderr=subprocess.STDOUT, text=True)
+                cp_process.wait()
+                print("Finished")
 
             # Unzip the files for trimming
             print(colored("  Unzip the files for trimming", "yellow"))
-            if not os.path.exists(f"{fastqdir}/{filename}.{ext}"):
-                file_path = f"{self.outdir}/RawData/fastqFiles/{full_filename}"
-                with gzip.open(file_path, "rb") as zip_obj:
-                    with open(f"{self.outdir}/RawData/fastqFiles/{filename}.{ext}", "wb") as unzip:
-                        shutil.copyfileobj(zip_obj, unzip)
-            #     subprocess.run(["gzip", "-vd",
-            #                     f"{self.outdir}/Rawdata/fastqFiles/{full_filename}"],
-            #                    stdout=subprocess.PIPE, stdin=subprocess.PIPE,
-            #                    stderr=subprocess.STDOUT, text=True, check=True)
-            processed_files.append(f"{self.outdir}/RawData/fastqFiles/{filename}.{ext}")
+            # if not os.path.exists(f"{fastqdir}/{filename}.{ext}"):
+            #     file_path = f"{self.outdir}/RawData/fastqFiles/{full_filename}"
+            #     with gzip.open(file_path, "rb") as zip_obj:
+            #         with open(f"{self.outdir}/RawData/fastqFiles/{filename}.{ext}", "wb") as unzip:
+            #             shutil.copyfileobj(zip_obj, unzip)
+            try:
+                subprocess.run(f"gzip -vd {self.outdir}/RawData/fastqFiles/{full_filename}",
+                               stdout=subprocess.PIPE, stdin=subprocess.PIPE,
+                               stderr=subprocess.STDOUT, text=True, check=True, shell=True)
+            except subprocess.CalledProcessError as e:
+                raise RuntimeError(f"command '{e.cmd}' return with error (code {e.returncode}): {e.output}")
+            # processed_files.append(f"{self.outdir}/RawData/fastqFiles/{filename}.{ext}")
 
         # Form the processes
         with confut.ProcessPoolExecutor() as executor:
