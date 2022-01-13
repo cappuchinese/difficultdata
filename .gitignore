@@ -1,6 +1,5 @@
 bin_packages.txt
-RawTools
 venv
 lib/__pycache__
 .idea
-
+bin
