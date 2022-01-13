@@ -41,7 +41,7 @@ class PipelineFuncs:
                 subprocess.run(["rm", "-rfv", f"{directory}/*"], stdout=subprocess.PIPE,
                                stdin=subprocess.PIPE, stderr=subprocess.STDOUT,
                                text=True, check=True)
-                print(glob.glob(f"{directory}/RawData/fastqFiles/"))
+                # print(glob.glob(f"{directory}/RawData/fastqFiles/"))
 
             # Exit program if user does not want to empty the directory
             else:
@@ -134,7 +134,7 @@ class PipelineFuncs:
             shutil.rmtree(f"{self.outdir}/Preprocessing/")
 
     @staticmethod
-    def determine_genome_info(identifier):
+    def determine_genome_info(identifier, genome_path):
         """
         This module contains 3 different directories:
 
@@ -148,27 +148,27 @@ class PipelineFuncs:
         These directories are callable via the identifier
         :return: The directories according to the identifier
         """
-        organisms = {"hs": [f"Genome/HiSat2/Homo_sapiens/GRCh38.92",
-                            f"Genome/Homo_sapiens.GRCh38.84.gtf",
-                            f"Genome/Homo_sapiens.GRCh38.dna.primary_assembly.fa"],
 
-                     "mmu": ["Genome/HiSat2/Macaca_mulatta/genome",
-                             "Genome/Macaca_mulatta.Mmul_8.0.1.92.gtf",
-                             "Macaca_mulatta.Mmul_8.0.1.dna.toplevel.fa"],
+        organisms = {"hs": [f"{genome_path}/HiSat2/Homo_sapiens/GRCh38.92",
+                            f"{genome_path}/Homo_sapiens.GRCh38.84.gtf",
+                            f"{genome_path}/Homo_sapiens.GRCh38.dna.primary_assembly.fa"],
 
-                     "mm": ["Genome/HiSat2/Mus_musculus/GRCm38",
-                            "Genome/Mus_musculus.GRCm38.92.gtf",
-                            "Genome/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa"],
+                     "mmu": [f"{genome_path}/HiSat2/Macaca_mulatta/genome",
+                             f"{genome_path}/Macaca_mulatta.Mmul_8.0.1.92.gtf",
+                             f"{genome_path}Macaca_mulatta.Mmul_8.0.1.dna.toplevel.fa"],
 
-                     "rn": ["Genome/HiSat2/Rattus_norvegicus/Rnor6.0",
-                            "Genome/Rattus_norvegicus.Rnor_6.0.93.gtf",
-                            "Genome/Rattus_norvegicus.Rnor_6.0.dna_sm.toplevel.fa"],
+                     "mm": [f"{genome_path}/HiSat2/Mus_musculus/GRCm38",
+                            f"{genome_path}/Mus_musculus.GRCm38.92.gtf",
+                            f"{genome_path}/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa"],
 
-                     "dr": ["Genome/HiSat2/Danio_rerio/GRCz11.93",
-                            "Genome/Danio_rerio.GRCz11.93.gtf",
-                            "Genome/Danio_rerio.GRCz11.93.dna_sm.primary_assembly.fa"]
+                     "rn": [f"{genome_path}/HiSat2/Rattus_norvegicus/Rnor6.0",
+                            f"{genome_path}/Rattus_norvegicus.Rnor_6.0.93.gtf",
+                            f"{genome_path}/Rattus_norvegicus.Rnor_6.0.dna_sm.toplevel.fa"],
+
+                     "dr": [f"{genome_path}/HiSat2/Danio_rerio/GRCz11.93",
+                            f"{genome_path}/Danio_rerio.GRCz11.93.gtf",
+                            f"{genome_path}/Danio_rerio.GRCz11.93.dna_sm.primary_assembly.fa"]
                      }
-
         if identifier in organisms:
             return organisms[identifier]
 
@@ -209,16 +209,16 @@ class PipelineFuncs:
 
         # Check if fasta.dict has been created
         if not os.path.isfile(genome_fasta.replace("fa", "dict")):
-            print(colored("Creating fasta.dict...", "yellow"))
+            print(colored("  Creating fasta.dict...", "yellow"))
             # If not, create the file
             subprocess.run(f"java -jar {picard} CreateSequenceDictionary R={genome_fasta} "
                            f"O={genome_fasta.replace('fa', 'dict')}", stdout=subprocess.PIPE,
-                           stdin=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, check=True, shell=True)
-
+                           stdin=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, check=True,
+                           shell=True)
 
         # Check if fasta.fa.fai has been created
         if not os.path.isfile(f"{genome_fasta}.fai"):
-            print(colored("Creating fasta.fa.fai...", "yellow"))
+            print(colored("  Creating fasta.fa.fai...", "yellow"))
             # If not, create the file
             subprocess.run(["samtools", "faidx", f"{genome_fasta}"], stdout=subprocess.PIPE,
                            stdin=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, check=True)

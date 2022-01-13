@@ -46,5 +46,6 @@ class QualityCheck:
         files = glob.glob(f"{fastqdir}/*.gz")
         # Form the processes
         with confut.ProcessPoolExecutor() as executor:
+            print(colored("  Running multi runs...", "yellow"))
             results = executor.map(self.check, files)
             print(colored("  Finished fastqc", "green"))

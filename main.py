@@ -49,7 +49,9 @@ def read_config():
     """
     config = configparser.ConfigParser()
     config.read("config.ini")
+    print(config)
     default = config["DEFAULT"]
+    print(default)
 
     return default
 
@@ -60,6 +62,7 @@ def main():
     :return 0: exitcode
     """
     # Get all the arguments and the config
+    # load_dotenv()
     args = __arguments()
     config = read_config()
 
@@ -76,7 +79,8 @@ def main():
     trimmer.multi_trim(args.fastqDir)
 
     # Determine right genome annotation
-    genome_hisat, gtf, genome_fasta = pipeline_mod.determine_genome_info(args.organism)
+    genome_hisat, gtf, genome_fasta = pipeline_mod.determine_genome_info(args.organism,
+                                                                         config["genomeDir"])
 
     # Make sure the fasta file of the right organism was chosen
     pipeline_mod.fasta_processing(genome_fasta, config["picard"])
