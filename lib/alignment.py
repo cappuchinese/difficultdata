@@ -51,9 +51,11 @@ class Alignment:
 
         # Looping through the trimmed files
         for files in self.files:
+            print(f"Found file: {files} in folder: {self.outputdir}")   # debug
             # checking if the file name is unique
             unique_flag = self.check_unique(files)
             if unique_flag:
+                print(f"{files} passed the unique_flag statement")  # Debug
                 if files not in self.unique_filenames:
                     # Add the unique filenames to a list
                     self.unique_filenames.append(files)
@@ -65,7 +67,7 @@ class Alignment:
                         self.unique_filenames_unpaired.append(files)
             else:
                 print("Duplicate file detected: " + colored(files, "green") + " -> skipped")
-
+        print(f"The list of unique filenames is as follows:\n{self.unique_filenames}")  # Debug
         # If pair-ended files are included, attempt to combine the pairs
         if len(self.unique_filenames_paired) > 1:
             self._paired_finder()
