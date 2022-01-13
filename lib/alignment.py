@@ -48,7 +48,10 @@ class Alignment:
         creating .bam/.sam files in the process.
         """
         print(colored("Starting the alignment process", "blue", attrs=["bold"]))
-        print(f"Looking in the following folder {self.outputdir}/Preprocessing/trimmed/ for the following extension:{self.extension}")
+        files = glob.glob(f"{self.outputdir}/Preprocessing/trimmed/*.{self.extension}")
+        print(files)
+        print(f"Looking in the following folder {self.outputdir}/Preprocessing/trimmed/ "
+              f"for the following extension:{self.extension}")
 
         # Looping through the trimmed files
         for files in self.files:

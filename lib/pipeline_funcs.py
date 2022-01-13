@@ -25,6 +25,7 @@ class PipelineFuncs:
         if directory.endswith("/"):
             directory = directory.rstrip("/")
 
+        # Check if the output directory exist, else make
         if not os.path.isdir(output_dir):
             subprocess.run(["mkdir", output_dir], stdout=subprocess.PIPE, stdin=subprocess.PIPE,
                            stderr=subprocess.STDOUT, text=True, check=True)
@@ -35,7 +36,7 @@ class PipelineFuncs:
                           "green"))
             answer = input().lower()
 
-            # Empty the dictionary
+            # Empty the directory
             if answer == "y":
                 print(colored("Emptying directory...", "red"))
                 subprocess.run(["rm", "-rfv", f"{directory}/*"], stdout=subprocess.PIPE,

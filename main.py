@@ -49,9 +49,7 @@ def read_config():
     """
     config = configparser.ConfigParser()
     config.read("config.ini")
-    print(config)
     default = config["DEFAULT"]
-    print(default)
 
     return default
 

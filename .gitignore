@@ -3,3 +3,5 @@ venv
 lib/__pycache__
 .idea
 bin
+subread-2.0.3-source.tar.gz
+trim_galore.tar.gz
