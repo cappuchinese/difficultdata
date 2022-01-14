@@ -39,15 +39,12 @@ class TrimFiles:
         filename, ext = file_.split(".")
 
         if self.trim is None:
-            print(colored("  Trimming with TrimGalore...", "yellow"))
-
             subprocess.run([self.galore, file_.replace(f".{ext}.gz", f".{ext}"), "-o",
                             f"{self.outdir}/Preprocessing/trimmed/"],
                            stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT,
                            text=True, check=True)
 
         else:
-            print(colored("  Trimming with fastx_trimmer...", "yellow"))
             sep_trim = self.trim.split("-")
 
             if len(sep_trim) == 1:
@@ -99,6 +96,11 @@ class TrimFiles:
 
         # Form the processes
         with confut.ProcessPoolExecutor() as executor:
+            # Prints for program progress
+            if self.trim:
+                print(colored("  Trimming with fastx_trimmer...", "yellow"))
+            else:
+                print(colored("  Trimming with TrimGalore...", "yellow"))
+
             files = glob.glob(f"{self.outdir}/RawData/fastqFiles/*")
             results = executor.map(self.trimmer, files)
-            print(colored("  Finished trimming", "green"))

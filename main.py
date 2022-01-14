@@ -12,6 +12,7 @@ __version__ = 1.0
 import sys
 import argparse
 import configparser
+from termcolor import colored
 
 # Import self created modules
 from lib.alignment import Alignment
@@ -75,6 +76,7 @@ def main():
     # Trim the files
     trimmer = TrimFiles(args.outputDir, args.trim, config["trimGalore"])
     trimmer.multi_trim(args.fastqDir)
+    print(colored("  Finished trimming", "green"))
 
     # Determine right genome annotation
     genome_hisat, gtf, genome_fasta = pipeline_mod.determine_genome_info(args.organism,

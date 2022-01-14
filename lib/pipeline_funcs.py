@@ -115,17 +115,6 @@ class PipelineFuncs:
         self._create_codedir()
         self._create_rawdir()
 
-    # def copy_aligningcode(self):
-    #     """
-    #     Copy the aligning code to Code/aligningPipeline/
-    #
-    #     """
-    #     print(colored("Transfering first code files...", "blue", attrs=["bold"]))
-    #     for files in glob.glob(f"{os.getcwd()}/*.py"):
-    #         pythonfile = files.split("/")[-1]
-    #         subprocess.run(["cp", "-v", files, self.outdir, "Code/aligningPipeline/", pythonfile],
-    #         stdout=subprocess.STDOUT, text=True, check=True)
-
     def remove_folders(self):
         """
         Remove unnecessary folders
@@ -174,7 +163,7 @@ class PipelineFuncs:
             return organisms[identifier]
 
         print(colored("Make sure the chosen organism is valid!", "red"))
-        print("Use --help for more information")
+        print("  Use --help for more information")
         return None, None, None
 
     def perform_multiqc(self):
