@@ -73,6 +73,7 @@ class TrimFiles:
         for file_ in files:
             # Split to filenames
             full_filename = file_.split("/")[-1]
+            unzipped_name = full_filename.rsplit(".", 1)[0]
 
             # Copy the gzipped files to RawData
             print(colored("  Copy .gz files to RawData", "yellow"))
@@ -86,13 +87,14 @@ class TrimFiles:
 
             # Unzip the files for trimming
             print(colored("  Unzip the files for trimming", "yellow"))
-            try:
-                subprocess.run(f"gzip -vd {self.outdir}/RawData/fastqFiles/{full_filename}",
-                               stdout=subprocess.PIPE, stdin=subprocess.PIPE,
-                               stderr=subprocess.STDOUT, text=True, check=True, shell=True)
-            except subprocess.CalledProcessError as e:
-                raise RuntimeError(f"command '{e.cmd}' return with error"
-                                   f"(code {e.returncode}): {e.output}")
+            if not os.path.exists(f"{self.outdir}/RawData/fastqFiles/{unzipped_name}"):
+                try:
+                    subprocess.run(f"gzip -vd {self.outdir}/RawData/fastqFiles/{full_filename}",
+                                   stdout=subprocess.PIPE, stdin=subprocess.PIPE,
+                                   stderr=subprocess.STDOUT, text=True, check=True, shell=True)
+                except subprocess.CalledProcessError as e:
+                    raise RuntimeError(f"command '{e.cmd}' return with error"
+                                       f"(code {e.returncode}): {e.output}")
 
         # Form the processes
         with confut.ProcessPoolExecutor() as executor:

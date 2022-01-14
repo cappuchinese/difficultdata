@@ -42,7 +42,7 @@ class PipelineFuncs:
                 subprocess.run(["rm", "-rfv", f"{directory}/*"], stdout=subprocess.PIPE,
                                stdin=subprocess.PIPE, stderr=subprocess.STDOUT,
                                text=True, check=True)
-                # print(glob.glob(f"{directory}/RawData/fastqFiles/"))
+                print(glob.glob(f"{directory}/RawData/fastqFiles/"))
 
             # Exit program if user does not want to empty the directory
             else:
