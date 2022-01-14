@@ -76,9 +76,8 @@ class TrimFiles:
             unzipped_name = full_filename.rsplit(".", 1)[0]
 
             # Copy the gzipped files to RawData
-            print(colored("  Copy .gz files to RawData", "yellow"))
-            print(os.path.exists(f"{self.outdir}/RawData/fastqFiles/{full_filename}"))
             if not os.path.exists(f"{self.outdir}/RawData/fastqFiles/{full_filename}"):
+                print(colored(f"  Copy {full_filename} to RawData", "yellow"))
                 cp_process = subprocess.Popen(["cp", "-v", file_,
                                                f"{self.outdir}/RawData/fastqFiles/{full_filename}"],
                                               stdin=subprocess.PIPE, stderr=subprocess.STDOUT,
@@ -86,9 +85,9 @@ class TrimFiles:
                 cp_process.wait()
 
             # Unzip the files for trimming
-            print(colored("  Unzip the files for trimming", "yellow"))
             if not os.path.exists(f"{self.outdir}/RawData/fastqFiles/{unzipped_name}"):
                 try:
+                    print(colored(f"  Unzip {full_filename} for trimming", "yellow"))
                     subprocess.run(f"gzip -vd {self.outdir}/RawData/fastqFiles/{full_filename}",
                                    stdout=subprocess.PIPE, stdin=subprocess.PIPE,
                                    stderr=subprocess.STDOUT, text=True, check=True, shell=True)
