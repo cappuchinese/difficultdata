@@ -32,8 +32,9 @@ class QualityCheck:
         Perform quality check on file
         :param file: Fastq file
         """
-        process = Popen(["fastqc", "--extract", file, "-o", f"{self.outdir}/Results/fastQC"],
-                        stdout=PIPE, stdin=PIPE, stderr=PIPE, shell=True)
+        print(file)
+        command = [f"fastqc {file} -o {self.outdir}/Results/fastQC"]
+        process = Popen(command, stdout=PIPE, stdin=PIPE, stderr=PIPE, shell=True)
 
         out, err = process.communicate()
         print(colored(f"Output: {out}", "green"))
@@ -52,7 +53,6 @@ class QualityCheck:
             unzipped = filename.rsplit(".", 1)[0]
             correct_files.append(unzipped)
 
-        print(correct_files)
         # Form the processes
         with confut.ProcessPoolExecutor() as executor:
             print(colored("  Running multi runs...", "yellow"))
