@@ -73,7 +73,8 @@ def main():
     # Perform quality check
     quality = QualityCheck(args.outputDir)
     quality.multi_run()
-
+    print(colored("  Finished fastqc", "green"))
+    sys.exit(0)
     # Trim the files
     trimmer = TrimFiles(args.outputDir, args.trim, config["trimGalore"])
     trimmer.multi_trim()
