@@ -41,13 +41,15 @@ class Unzipper:
                                                f"{self.outdir}/RawData/fastqFiles/{full_filename}"],
                                               stdin=subprocess.PIPE, stderr=subprocess.STDOUT,
                                               text=True)
+                cp_process.wait()
 
         # Form the processor
         with confut.ProcessPoolExecutor() as executor:
             rawfiles = glob.glob(f"{self.outdir}/RawData/fastqFiles/*")
             results = executor.map(self.unzip_fastq, rawfiles)
 
-    def unzip_fastq(self, file):
+    @staticmethod
+    def unzip_fastq(file):
         """
         TODO
         :param file:
@@ -56,9 +58,8 @@ class Unzipper:
         # Unzip the files for trimming
         try:
             print(colored(f"  Unzip {file}", "yellow"))
-            subprocess.run(f"gzip -vkd {self.outdir}/RawData/fastqFiles/{file}",
-                           stdout=subprocess.PIPE, stdin=subprocess.PIPE,
-                           stderr=subprocess.STDOUT, text=True, check=True, shell=True)
+            subprocess.run([f"gzip -vkd {file}"], stdout=subprocess.PIPE, stdin=subprocess.PIPE,
+                           stderr=subprocess.PIPE, shell=True)
         except subprocess.CalledProcessError as e:
             raise RuntimeError(f"Command '{e.cmd}' return with error"
                                f"(code {e.returncode}): {e.output}")
