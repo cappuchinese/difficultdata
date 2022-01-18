@@ -7,6 +7,7 @@ __author__ = "Lisa Hu"
 __version__ = 1.0
 
 # IMPORTS
+import os
 import glob
 import subprocess
 import concurrent.futures as confut
@@ -36,14 +37,15 @@ class Unzipper:
             # Copy the gzipped files to RawData
             if not os.path.exists(f"{self.outdir}/RawData/fastqFiles/{full_filename}"):
                 print(colored(f"  Copy {full_filename} to RawData", "yellow"))
-                cp_process = subprocess.Popen(["cp", "-v", file_,
+                cp_process = subprocess.Popen(["cp", file_,
                                                f"{self.outdir}/RawData/fastqFiles/{full_filename}"],
                                               stdin=subprocess.PIPE, stderr=subprocess.STDOUT,
                                               text=True)
 
         # Form the processor
         with confut.ProcessPoolExecutor() as executor:
-            results = executor.map(self.unzip_fastq, files)
+            rawfiles = glob.glob(f"{self.outdir}/RawData/fastqFiles/*")
+            results = executor.map(self.unzip_fastq, rawfiles)
 
     def unzip_fastq(self, file):
         """
