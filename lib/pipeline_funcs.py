@@ -39,10 +39,13 @@ class PipelineFuncs:
             # Empty the directory
             if answer == "y":
                 print(colored("Emptying directory...", "red"))
-                subprocess.run(["rm", "-rfv", f"{directory}/*"], stdout=subprocess.PIPE,
-                               stdin=subprocess.PIPE, stderr=subprocess.STDOUT,
-                               text=True, check=True)
-
+                try:
+                    subprocess.run([f"rm -rfv {directory}/*"], stdout=subprocess.PIPE,
+                                   stdin=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                   text=True, check=True, shell=True)
+                except subprocess.CalledProcessError as e:
+                    raise RuntimeError(f"command '{e.cmd}' return with error"
+                                       f"(code {e.returncode}): {e.output}")
             # Exit program if user does not want to empty the directory
             else:
                 sys.exit(colored("Empty output directory before continuing. Exiting program...",

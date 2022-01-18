@@ -20,6 +20,7 @@ from lib.pipeline_funcs import PipelineFuncs
 from lib.preprocessing import Preprocessing
 from lib.qualitycheck import QualityCheck
 from lib.trim_files import TrimFiles
+from lib.unzipper import Unzipper
 
 
 def __arguments():
@@ -68,7 +69,10 @@ def main():
     # Create all the dictionaries
     pipeline_mod = PipelineFuncs(args.outputDir)
     pipeline_mod.create_all()
-    pipeline_mod.unzip_fastq(args.fastqDir)
+
+    # Unzip data files
+    unzipper = Unzipper(args.outputDir)
+    unzipper.multi_run(args.fastqDir)
 
     # Perform quality check
     quality = QualityCheck(args.outputDir)
