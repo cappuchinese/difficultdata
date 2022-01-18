@@ -35,15 +35,15 @@ class QualityCheck:
                        stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT,
                        text=True, check=True)
 
-    def multi_run(self, fastqdir):
+    def multi_run(self):
         """
         Multiprocess the quality check
-        :param fastqdir: Directory with fastq files
         """
         print(colored("Performing quality check...", "blue", attrs=["bold"]))
 
         # Get all .gz files
-        files = glob.glob(f"{fastqdir}/*.gz")
+        files = glob.glob(f"{self.outdir}/RawData/fastqFiles/*.gz")
+        print(files)
         # Form the processes
         with confut.ProcessPoolExecutor() as executor:
             print(colored("  Running multi runs...", "yellow"))

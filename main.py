@@ -68,14 +68,15 @@ def main():
     # Create all the dictionaries
     pipeline_mod = PipelineFuncs(args.outputDir)
     pipeline_mod.create_all()
+    pipeline_mod.unzip_fastq(args.fastqDir)
 
     # Perform quality check
     quality = QualityCheck(args.outputDir)
-    quality.multi_run(args.fastqDir)
+    quality.multi_run()
 
     # Trim the files
     trimmer = TrimFiles(args.outputDir, args.trim, config["trimGalore"])
-    trimmer.multi_trim(args.fastqDir)
+    trimmer.multi_trim()
     print(colored("  Finished trimming", "green"))
 
     # Determine right genome annotation
@@ -84,6 +85,7 @@ def main():
 
     # Make sure the fasta file of the right organism was chosen
     pipeline_mod.fasta_processing(genome_fasta, config["picard"])
+    print(colored("  Finished genome fasta", "green"))
 
     # Perform alignment
     alignment = Alignment(args.outputDir, genome_hisat)

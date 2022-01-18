@@ -42,7 +42,6 @@ class PipelineFuncs:
                 subprocess.run(["rm", "-rfv", f"{directory}/*"], stdout=subprocess.PIPE,
                                stdin=subprocess.PIPE, stderr=subprocess.STDOUT,
                                text=True, check=True)
-                print(glob.glob(f"{directory}/RawData/fastqFiles/"))
 
             # Exit program if user does not want to empty the directory
             else:
@@ -212,3 +211,36 @@ class PipelineFuncs:
             # If not, create the file
             subprocess.run(["samtools", "faidx", f"{genome_fasta}"], stdout=subprocess.PIPE,
                            stdin=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, check=True)
+
+    def unzip_fastq(self, fastqdir):
+        """
+        :param fastqdir: Directory of fastq files
+        :return:
+        """
+        # Get the files of the fastq directory
+        files = glob.glob(f"{fastqdir}/*.gz")
+
+        for file_ in files:
+            # Split to filenames
+            full_filename = file_.split("/")[-1]
+            unzipped_name = full_filename.rsplit(".", 1)[0]
+
+            # Copy the gzipped files to RawData
+            if not os.path.exists(f"{self.outdir}/RawData/fastqFiles/{full_filename}"):
+                print(colored(f"  Copy {full_filename} to RawData", "yellow"))
+                cp_process = subprocess.Popen(["cp", "-v", file_,
+                                               f"{self.outdir}/RawData/fastqFiles/{full_filename}"],
+                                              stdin=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                              text=True)
+                cp_process.wait()
+
+            # Unzip the files for trimming
+            if not os.path.exists(f"{self.outdir}/RawData/fastqFiles/{unzipped_name}"):
+                try:
+                    print(colored(f"  Unzip {full_filename}", "yellow"))
+                    subprocess.run(f"gzip -vd {self.outdir}/RawData/fastqFiles/{full_filename}",
+                                   stdout=subprocess.PIPE, stdin=subprocess.PIPE,
+                                   stderr=subprocess.STDOUT, text=True, check=True, shell=True)
+                except subprocess.CalledProcessError as e:
+                    raise RuntimeError(f"command '{e.cmd}' return with error"
+                                       f"(code {e.returncode}): {e.output}")

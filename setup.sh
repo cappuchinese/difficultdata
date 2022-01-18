@@ -9,7 +9,7 @@ echo 'installing python packages...'
 pip3 install -r requirements.txt
 
 # installation hisat2
-if [ ! -d bin/hisat2-2.2.1 ]; then
+if [ ! -d bin/hisat2 ]; then
   cd bin
   git clone https://github.com/DaehwanKimLab/hisat2.git
   cd hisat2
