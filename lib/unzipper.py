@@ -8,9 +8,10 @@ __version__ = 1.0
 
 # IMPORTS
 import glob
-from subprocess
+import subprocess
 import concurrent.futures as confut
 from termcolor import colored
+
 
 class Unzipper:
     """
