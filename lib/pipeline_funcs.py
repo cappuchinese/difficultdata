@@ -126,7 +126,7 @@ class PipelineFuncs:
             shutil.rmtree(f"{self.outdir}/Preprocessing/")
 
     @staticmethod
-    def determine_genome_info(identifier, genome_path):
+    def determine_genome_info(genome_path):
         """
         This module contains 3 different directories:
 
@@ -141,32 +141,9 @@ class PipelineFuncs:
         :return: The directories according to the identifier
         """
 
-        organisms = {"hs": [f"{genome_path}/HiSat2/Homo_sapiens/GRCh38.92",
+        return [f"{genome_path}/HiSat2/Homo_sapiens/GRCh38.92",
                             f"{genome_path}/Homo_sapiens.GRCh38.84.gtf",
-                            f"{genome_path}/Homo_sapiens.GRCh38.dna.primary_assembly.fa"],
-
-                     "mmu": [f"{genome_path}/HiSat2/Macaca_mulatta/genome",
-                             f"{genome_path}/Macaca_mulatta.Mmul_8.0.1.92.gtf",
-                             f"{genome_path}Macaca_mulatta.Mmul_8.0.1.dna.toplevel.fa"],
-
-                     "mm": [f"{genome_path}/HiSat2/Mus_musculus/GRCm38",
-                            f"{genome_path}/Mus_musculus.GRCm38.92.gtf",
-                            f"{genome_path}/Mus_musculus.GRCm38.dna_sm.primary_assembly.fa"],
-
-                     "rn": [f"{genome_path}/HiSat2/Rattus_norvegicus/Rnor6.0",
-                            f"{genome_path}/Rattus_norvegicus.Rnor_6.0.93.gtf",
-                            f"{genome_path}/Rattus_norvegicus.Rnor_6.0.dna_sm.toplevel.fa"],
-
-                     "dr": [f"{genome_path}/HiSat2/Danio_rerio/GRCz11.93",
-                            f"{genome_path}/Danio_rerio.GRCz11.93.gtf",
-                            f"{genome_path}/Danio_rerio.GRCz11.93.dna_sm.primary_assembly.fa"]
-                     }
-        if identifier in organisms:
-            return organisms[identifier]
-
-        print(colored("Make sure the chosen organism is valid!", "red"))
-        print("  Use --help for more information")
-        return None, None, None
+                            f"{genome_path}/Homo_sapiens.GRCh38.dna.primary_assembly.fa"]
 
     def perform_multiqc(self):
         """

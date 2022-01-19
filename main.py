@@ -32,9 +32,6 @@ def __arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--fastqDir', required=True,
                         help='[REQUIRED] Directory to the fq.gz/fastq.gz files')
-    parser.add_argument('-o', '--organism', required=True,
-                        help='[REQUIRED] Define the two letter id for the organism for the '
-                             'alignment:\nHuman=hs\nMouse=mm\nMacaque=mmu\nRat=rn')
     parser.add_argument('-out', '--outputDir', required=True,
                         help='[REQUIRED] Pathways to output directory')
     parser.add_argument('-t', '--trim', help='Define the last bp to keep for trimming')
@@ -63,7 +60,6 @@ def main():
     :return 0: exitcode
     """
     # Get all the arguments and the config
-    # load_dotenv()
     args = __arguments()
     config = read_config()
 
@@ -85,16 +81,16 @@ def main():
     trimmer.multi_trim()
     print(colored("  Finished trimming", "green"))
 
-    # Determine right genome annotation
+    # TODO commenting
     if not os.path.exists(f"{os.getcwd()}/Genome"):
         genome_dir = config["genomeDir"]
     else:
         genome_dir = f"{os.getcwd()}/Genome"
 
-    genome_hisat, gtf, genome_fasta = pipeline_mod.determine_genome_info(args.organism,
-                                                                         genome_dir)
+    genome_hisat = f"{genome_dir}/HiSat2/Homo_sapiens/GRCh38.92"
+    gtf = f"{genome_dir}/Homo_sapiens.GRCh38.84.gtf"
+    genome_fasta = f"{genome_dir}/Homo_sapiens.GRCh38.dna.primary_assembly.fa"
 
-    # Make sure the fasta file of the right organism was chosen
     pipeline_mod.fasta_processing(genome_fasta, config["picard"])
     print(colored("  Finished genome fasta", "green"))
 
