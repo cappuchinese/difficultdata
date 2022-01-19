@@ -2,6 +2,5 @@ bin_packages.txt
 venv
 lib/__pycache__
 .idea
-subread-2.0.3-source.tar.gz
-trim_galore.tar.gz
-bin/hisat2
+*tar.gz
+Genome

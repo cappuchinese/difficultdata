@@ -8,6 +8,10 @@ pip3 install multiqc;
 echo 'installing python packages...'
 pip3 install -r requirements.txt
 
+if [ ! -d bin ]; then
+  mkdir bin
+fi
+
 # installation hisat2
 if [ ! -d bin/hisat2 ]; then
   cd bin
@@ -43,6 +47,6 @@ if [ ! -d Genome ]; then
   gzip -d Homo_sapiens.GRCh38.84.gtf.gz
   gzip -d snp144Common.txt.gz
   awk 'BEGIN{OFS="\t"} {if($2 ~ /^chr/) {$2 = substr($2, 4)}; if($2 == "M") {$2 = "MT"} print}' snp144Common.txt > snp144Common.txt.ensembl
-  hisat2_extract_snps_haplotypes_UCSC.py Homo_sapiens.GRCh38.dna.primary_assembly.fa snp144Common.txt.ensembl Homo_sapiens
+  ../bin/hisat2/hisat2_extract_snps_haplotypes_UCSC.py Homo_sapiens.GRCh38.dna.primary_assembly.fa snp144Common.txt.ensembl Homo_sapiens
   cd ..
 fi

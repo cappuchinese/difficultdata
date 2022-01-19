@@ -9,6 +9,7 @@ __date__ = 2021.11
 __version__ = 1.0
 
 # Imports
+import os
 import sys
 import argparse
 import configparser
@@ -78,15 +79,20 @@ def main():
     quality = QualityCheck(args.outputDir)
     quality.multi_run()
     print(colored("  Finished fastqc", "green"))
-    sys.exit(0)
+
     # Trim the files
     trimmer = TrimFiles(args.outputDir, args.trim, config["trimGalore"])
     trimmer.multi_trim()
     print(colored("  Finished trimming", "green"))
 
     # Determine right genome annotation
+    if not os.path.exists(f"{os.getcwd()}/Genome"):
+        genome_dir = config["genomeDir"]
+    else:
+        genome_dir = f"{os.getcwd()}/Genome"
+
     genome_hisat, gtf, genome_fasta = pipeline_mod.determine_genome_info(args.organism,
-                                                                         config["genomeDir"])
+                                                                         genome_dir)
 
     # Make sure the fasta file of the right organism was chosen
     pipeline_mod.fasta_processing(genome_fasta, config["picard"])
