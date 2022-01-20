@@ -34,7 +34,10 @@ class FeatureCount:
         :OUTPUT:            2 files, a .txt with gene counts and a .bam file with marked duplicates
         """
         print(colored("Using featureCount...", "blue", attrs=["bold"]))
-        subprocess.run([self.feature_count, "-a", {self.gtffile},
-                        "-o", f"{self.outputdir}/RawData/counts/geneCounts.txt",
-                        f"{self.outputdir}Preprocessing/markDuplicates/*_sorted.bam"],
-                       stdout=subprocess.STDOUT, text=True, check=True)
+        try:
+            subprocess.run([self.feature_count, "-a", {self.gtffile},
+                            "-o", f"{self.outputdir}/RawData/counts/geneCounts.txt",
+                            f"{self.outputdir}Preprocessing/markDuplicates/*_sorted.bam"],
+                           stdout=subprocess.STDOUT, text=True, check=True)
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError(f"command '{e.cmd}' return with error (code {e.returncode}): {e.output}")
