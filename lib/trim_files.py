@@ -36,7 +36,7 @@ class TrimFiles:
         :param file_:
         :return: extension
         """
-        filename, ext = file_.split(".")
+        filename, ext, zip_ext = file_.split(".")
 
         if self.trim is None:
             subprocess.run([self.galore, file_.replace(f".{ext}.gz", f".{ext}"), "-o",
