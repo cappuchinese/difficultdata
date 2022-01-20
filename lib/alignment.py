@@ -100,6 +100,8 @@ class Alignment:
         if self.files.count(file) == 1:
             if sys.getsizeof(file) != 0:
                 check_f = True
+            else:
+                print(colored(f"File: {file} doesn't have any bytes, will be excluded", "red"))
 
         return check_f
 
