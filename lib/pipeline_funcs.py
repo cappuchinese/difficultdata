@@ -163,7 +163,7 @@ class PipelineFuncs:
         print(colored("Using featureCounts...", "blue", attrs=["bold"]))
         subprocess.run([feature_count, "-a", gtffile,
                         "-o", f"{self.outdir}/RawData/counts/geneCounts.txt",
-                        f"{self.outdir}Preprocessing/markDuplicates/*_sorted.bam"],
+                        f"{self.outdir}/Preprocessing/markDuplicates/*_sorted.bam"],
                        stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT,
                        text=True, check=True)
 
