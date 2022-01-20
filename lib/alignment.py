@@ -12,6 +12,7 @@ import concurrent.futures
 import glob
 import subprocess
 import sys
+import os
 
 from termcolor import colored
 
@@ -98,7 +99,7 @@ class Alignment:
         check_f = False
 
         if self.files.count(file) == 1:
-            if sys.getsizeof(file) != 0:
+            if os.path.getsize(file) != 0:
                 check_f = True
             else:
                 print(colored(f"File: {file} doesn't have any bytes, will be excluded", "red"))
