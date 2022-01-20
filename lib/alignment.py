@@ -57,9 +57,9 @@ class Alignment:
         for files in self.files:
             print(f"Found file: {files} in folder: {self.outputdir}")   # debug
             # checking if the file name is unique
-            unique_flag = self.check_unique(files)
-            if unique_flag:
-                print(f"{files} passed the unique_flag statement")  # Debug
+            unique_flag, size_flag = self.check_unique(files)
+            if unique_flag and size_flag:
+                print(f"{files} passed the unique_flag & size_flag statements")  # Debug
                 if files not in self.unique_filenames:
                     # Add the unique filenames to a list
                     self.unique_filenames.append(files)
@@ -69,8 +69,12 @@ class Alignment:
                     else:
                         # Else it is an unpaired alignment
                         self.unique_filenames_unpaired.append(files)
+            elif not size_flag:
+                print("File without data detected: " + colored(files, "red") + " -> skipped")
+                #TODO for pdf -> list of tuples [(file-name, no_data variable)]
             else:
                 print("Duplicate file detected: " + colored(files, "green") + " -> skipped")
+                #TODO for pdf -> list of tuples [(file-name, duplicate file variable)]
         print(f"The list of unique filenames is as follows:\n{self.unique_filenames}")  # Debug
         # If pair-ended files are included, attempt to combine the pairs
         if len(self.unique_filenames_paired) > 1:
@@ -97,14 +101,17 @@ class Alignment:
         """
 
         check_f = False
+        check_size = False
 
         if self.files.count(file) == 1:
-            if os.path.getsize(file) != 0:
-                check_f = True
-            else:
-                print(colored(f"File: {file} doesn't have any bytes, will be excluded", "red"))
+            check_f = True
 
-        return check_f
+        if os.path.getsize(file) != 0:
+            check_size = True
+        else:
+            print(colored(f"File: {file} doesn't have any bytes, will be excluded", "red"))
+
+        return check_f, check_size
 
     def _paired_finder(self):
         """
