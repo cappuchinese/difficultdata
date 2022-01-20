@@ -31,7 +31,7 @@ class Alignment:
                             that the alignments will be aligned against
         """
         self.outputdir = outputdir
-        self.extension = r"f[ast]*q"
+        self.extension = r"fq"
         self.genome = genomehs2
 
         self.files = glob.glob(f"{self.outputdir}/Preprocessing/trimmed/*.{self.extension}")
