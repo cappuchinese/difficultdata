@@ -11,6 +11,8 @@ __version__ = "1.0"
 import concurrent.futures
 import glob
 import subprocess
+import sys
+
 from termcolor import colored
 
 
@@ -96,7 +98,8 @@ class Alignment:
         check_f = False
 
         if self.files.count(file) == 1:
-            check_f = True
+            if sys.getsizeof(file) != 0:
+                check_f = True
 
         return check_f
 
