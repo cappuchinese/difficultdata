@@ -24,7 +24,7 @@ class FeatureCount:
         :param: gtffile:    a string, genome annotation file path
         """
         self.outputdir = outputdir
-        self.feature_count = f"tools/Subread-2.0.0/bin/featureCounts"
+        self.feature_count = f"bin/subread-2.0.3-source/bin/featureCounts"
         self.gtffile = gtffile
 
     def write_file(self):
