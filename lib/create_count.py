@@ -38,6 +38,7 @@ class FeatureCount:
             subprocess.run([self.feature_count, "-a", {self.gtffile},
                             "-o", f"{self.outputdir}/RawData/counts/geneCounts.txt",
                             f"{self.outputdir}Preprocessing/markDuplicates/*_sorted.bam"],
-                           stdout=subprocess.STDOUT, text=True, check=True)
+                           stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE,
+                           text=True, check=True, shell=True)
         except subprocess.CalledProcessError as e:
             raise RuntimeError(f"command '{e.cmd}' return with error (code {e.returncode}): {e.output}")
