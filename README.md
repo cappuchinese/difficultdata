@@ -97,7 +97,7 @@ python3 main.py -d /data/storix2/students/2019-2020/Thema06/project-data/How_to_
 
 after running the script and u want to creat a PDF report, pleas run the following script in the main directory: 
 ```bash
-python3 lib/pdf.py -d <outputdirlocatiosn>
+python3 lib/pdf.py -d <outputdirlocation>
 ```
 
 ## output
