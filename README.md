@@ -34,13 +34,14 @@ difficultdata
 ```
 
 ## instalation 
+this programm is ment for a linux system 
 
 go into the downloaded folder and run setup.sh 
 ```bash
 setup.sh
-
 ```
-this will install al the necessory files en dependencies 
+if using the aforementioned command doesnt work copy the contents of setup.sh directly into your bash terminal,
+this will install al the necessary files en dependencies 
 * cutadapt
 * multiqc
 * custom python packages in requirements.ini
@@ -91,8 +92,44 @@ optional arguments:
 ### example:
 ```bash
 python3 main.py -d /data/storix2/students/2019-2020/Thema06/project-data/How_to_deal_with_difficult_data/Data -o hs -out /students/2021-2022/Thema06/mpslik
-
 ```
+
+## output
+
+the output should consist out of a combined PDF file in the output Directory ./PDF
+
+## interpretation of the PDF results 
+
+##example :
+###SRR1106138_sum
+FastQC	0.11.9
+Basic Statistics	pass
+###Measure	Value
+- Filename	SRR1106138.fastq 
+  - File type	Conventional base calls
+  - Encoding	Sanger / Illumina 1.9
+  - Total Sequences	5627599
+  - Sequences flagged as poor quality	0
+  - Sequence length	25-57
+  - %GC	30  ***< check if this is correct for yopur organisme*** 
+  - ***pass or fail for the mentioned statistic***
+    - PASS	Basic Statistics	SRR1106138.fastq
+    - FAIL	Per base sequence quality	SRR1106138.fastq
+    - FAIL	Per sequence quality scores	SRR1106138.fastq
+    - FAIL	Per base sequence content	SRR1106138.fastq
+    - PASS	Per sequence GC content	SRR1106138.fastq
+    - PASS	Per base N content	SRR1106138.fastq
+    - WARN	Sequence Length Distribution	SRR1106138.fastq
+    - PASS	Sequence Duplication Levels	SRR1106138.fastq
+    - PASS	Overrepresented sequences	SRR1106138.fastq
+    - PASS	Adapter Content	SRR1106138.fastq
+- === Summary === ***< if this isnt present file was trimmed empty and quality was very bad.***
+  - Total reads processed: 5,627,599
+  - Reads with adapters: 0 (0.0%)
+  - Reads written (passing filters): 5,627,599 (100.0%)
+  - Total basepairs processed: 179,811,193 bp
+  - Quality-trimmed: 179,811,193 bp (100.0%)
+  - Total written (filtered): 0 bp (0.0%) ***< amount of left over base pairs after trimming***
 
 ## creators 
 - Lisa Hu 
