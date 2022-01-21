@@ -144,7 +144,7 @@ class Alignment:
 
         command = f"hisat2 -x {self.genome}/Homo_sapiens.GRCh38.dna.primary_assemblytest -U {self.outputdir}/Preprocessing/trimmed/{filename} -S {self.outputdir}/Results/alignment/{fastq_name.replace('_trimmed', '')}.log -p 2 | samtools view -Sbo {self.outputdir}/Preprocessing/aligned/{fastq_name.replace('_trimmed', '')}.bam"
         print(command)
-        subprocess.run(command, shell=True, check=True)
+        subprocess.run(command, shell=True, check=True, stdout=subprocess.STDOUT)
         print("done")
 
         # subprocess.run(["hisat2", "-x", f"./{self.genome}", "-U", f"{filename}", "2>",
