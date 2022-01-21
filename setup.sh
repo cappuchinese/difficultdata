@@ -7,6 +7,8 @@ echo 'installing multiqc...'
 pip3 install multiqc;
 echo 'installing python packages...'
 pip3 install -r requirements.txt
+echo 'installing PyFPDF...'
+pip3 install fpdf
 
 if [ ! -d bin ]; then
   mkdir bin
