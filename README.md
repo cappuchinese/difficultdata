@@ -1,8 +1,8 @@
 # Difficult data
 
-this is a complete rewrite from a old python 2 pipline to a streamlined multiprocessed object-oriented python 3 program
+This is a complete rewrite from an old python 2 pipeline to a streamlined multiprocessed object-oriented python 3 program.
 
-## contents
+## Contents
 ```bash
 difficultdata
 ├── Code
@@ -33,15 +33,15 @@ difficultdata
 
 ```
 
-## instalation 
-this programm is ment for a linux system 
+## Installation 
+This program is ment for a linux system.
 
-go into the downloaded folder and run setup.sh 
+To install, go into the downloaded folder and run setup.sh 
 ```bash
 setup.sh
 ```
-if using the aforementioned command doesnt work copy the contents of setup.sh directly into your bash terminal,
-this will install al the necessary files en dependencies 
+If running the aforementioned command doesn't work copy the contents of setup.sh directly into your bash terminal,
+this will install al the necessary files and dependencies 
 * cutadapt
 * multiqc
 * custom python packages in requirements.ini
@@ -50,9 +50,9 @@ this will install al the necessary files en dependencies
 * Trimgalore
 * subread2.0.2
 
-please copy and  run the following in your terminal:
+Please copy and run the following code in your terminal:
 ```bash
-# installation genome reference
+# Installation genome reference
 if [ ! -d Genome ]; then
   mkdir Genome
   cd Genome
@@ -69,15 +69,15 @@ if [ ! -d Genome ]; then
 fi
 
 ```
-this will download the necessary genome files, 
-after that please run the following command in the terminal:
+This will download the necessary genome files, 
+after that please run the following command in the terminal, this will build the Assembly Hisat2 requires with the downloaded genome:
 ```bash
 hisat2-build /Genome/Homo_sapiens.GRCh38.dna.primary_assembly.fa /Hisat_index/Homo_sapiens.GRCh38.dna.primary_assemblytest
 ```
 
-## usage 
+## Usage 
 
-do this in the directory where Main.py is located
+To run/use this script, run the following commands in the directory where Main.py is located.
 ```bash
 usage:python3 main.py [-h] -d FASTQDIR -out OUTPUTDIR [-t TRIM]
 
@@ -90,23 +90,23 @@ optional arguments:
   -t TRIM, --trim TRIM  Define the last bp to keep for trimming
 
 ```
-### example:
+### Example:
 ```bash
 python3 main.py -d /data/storix2/students/2019-2020/Thema06/project-data/How_to_deal_with_difficult_data/Data -o hs -out /students/2021-2022/Thema06/mpslik
 ```
 
-after running the script and u want to creat a PDF report, pleas run the following script in the main directory: 
+After running the script and if you wish to create a PDF report, please run the following script in the main directory where Main.py is located: 
 ```bash
 python3 lib/pdf.py -d <outputdirlocation>
 ```
 
-## output
+## Output
 
-the output should consist out of a combined PDF file in the output Directory ./PDF
+The output should consist out of a combined PDF file in the output Directory ./PDF
 
-## interpretation of the PDF results 
+## Interpretation of the PDF results 
 
-##example :
+##Example :
 ###SRR1106138_sum
 FastQC	0.11.9
 Basic Statistics	pass
@@ -137,7 +137,7 @@ Basic Statistics	pass
   - Quality-trimmed: 179,811,193 bp (100.0%)
   - Total written (filtered): 0 bp (0.0%) ***< amount of left over base pairs after trimming***
 
-## creators 
+## Authors
 - Lisa Hu 
 - Dennis Haandrikman 
 - Orfeas Gkourlias
