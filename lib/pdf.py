@@ -9,6 +9,7 @@ __version__ = "1.0"
 
 # IMPORTS
 import glob
+import argparse
 from fpdf import FPDF
 from summary import SummaryWriter
 
@@ -86,3 +87,21 @@ class PDFWrite:
         self.file_grabber()
         self.output()
         print("Finished generating the pdf.")
+
+
+def main():
+
+    parser = argparse.ArgumentParser(description="script to creat a single pdf report of the created results")
+    parser.add_argument("-d", "--output directory", action='store_true', dest='outputdir',
+                        help="put directory location where Main.py is located")
+
+    arguments = parser.parse_args()
+    create_pdf = PDFWrite(arguments.outputdir)
+
+
+    return 0
+
+
+if __name__ == "__main__":
+    EXITCODE = main()
+    sys.exit(EXITCODE)
