@@ -10,6 +10,7 @@ __version__ = "1.0"
 # IMPORTS
 import glob
 import argparse
+import sys
 from fpdf import FPDF
 from summary import SummaryWriter
 
