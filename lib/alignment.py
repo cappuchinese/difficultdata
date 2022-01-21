@@ -142,12 +142,10 @@ class Alignment:
         fastq_name = filename.split(".")[0]
         print(self.genome, filename, fastq_name)
 
-        command = [f"hisat2 -x {self.genome}/Homo_sapiens.GRCh38.dna.primary_assemblytest -U {filename} -S {self.outputdir}/Results/alignment/{fastq_name.replace('_trimmed', '')}.log | his view -Sbo {self.outputdir}/Preprocessing/aligned/{fastq_name.replace('_trimmed', '')}.bam"]
-        try:
-            subprocess.Popen(command, shell=True, stdout=subprocess.STDOUT, check=True, text=True)
-            print("done")
-        except subprocess.CalledProcessError as e:
-            raise RuntimeError(f"command '{e.cmd}' return with error (code {e.returncode}): {e.output}")
+        command = f"hisat2 -x {self.genome}/Homo_sapiens.GRCh38.dna.primary_assemblytest -U {self.outputdir}/Preprocessing/trimmed/{filename} -S {self.outputdir}/Results/alignment/{fastq_name.replace('_trimmed', '')}.log -p 2 | samtools view -Sbo {self.outputdir}/Preprocessing/aligned/{fastq_name.replace('_trimmed', '')}.bam"
+        print(command)
+        subprocess.run(command, shell=True, check=True, stout=PIPE)
+        print("done")
 
         # subprocess.run(["hisat2", "-x", f"./{self.genome}", "-U", f"{filename}", "2>",
         #                f"{self.outputdir}/Results/alignment/{fastq_name.replace('_trimmed', '')}"
@@ -174,7 +172,7 @@ class Alignment:
         # fastq_name only needs to be established once
         fastq_name = filename[0].split("_")
 
-        subprocess.run(["hisat2", "-x", f"./{self.genome}", "-1", f"{file_names[0]}", "-2",
+        subprocess.run(["hisat2", "-x", f"./{self.genome}/Homo_sapiens.GRCh38.dna.primary_assemblytest", "-1", f"{file_names[0]}", "-2",
                         f"{file_names[1]}", "2>",
                         f"{self.outputdir}/Results/alignment/{fastq_name}.log",
                         "|", "samtools", "view", "-Sbo",

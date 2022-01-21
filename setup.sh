@@ -28,10 +28,10 @@ if [ ! -d bin/trim_galore ]; then
 fi
 
 # installation Subread
-if [ ! -d bin/subread-2.0.3-source ]; then
-  wget https://sourceforge.net/projects/subread/files/subread-2.0.3/subread-2.0.3-source.tar.gz
-  tar xvzf subread-2.0.3-source.tar.gz -C bin/
-  cd bin/subread-2.0.3-source/src
+if [ ! -d bin/subread-2.0.2-source ]; then
+  wget https://sourceforge.net/projects/subread/files/subread-2.0.2/subread-2.0.2-source.tar.gz
+  tar xvzf subread-2.0.2-source.tar.gz -C bin/
+  cd bin/subread-2.0.2-source/src
   make -f Makefile.Linux
   cd ../../..
 fi
