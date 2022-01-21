@@ -140,10 +140,14 @@ class Alignment:
         fastq_name = filename.split(".")[0]
         log_file = f"{self.outputdir}/Results/alignment/{fastq_name.replace('_trimmed', '')}.log"
 
-        command = ["hisat2", f"-x {self.genome}/Homo_sapiens.GRCh38.dna.primary_assemblytest",
-                   f"-U {self.outputdir}/Preprocessing/trimmed/{filename}",
-                   f"-S {log_file}", "-p 2", "|", "samtools", "view", log_file, f"-Sbo {self.outputdir}/Preprocessing/aligned/{fastq_name.replace('_trimmed', '')}.bam"]
-        hi = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
+        command = [f"hisat2 -x {self.genome}/Homo_sapiens.GRCh38.dna.primary_assemblytest -U {self.outputdir}/Preprocessing/trimmed/{filename} -S {log_file} -p 2"],\
+                  [f"samtools view {log_file} -Sbo {self.outputdir}/Preprocessing/aligned/{fastq_name.replace('_trimmed', '')}.bam"]
+        print(filename)
+        print(fastq_name)
+        print(command)
+        for cmnd in command:
+            proc = subprocess.Popen(cmnd, shell=True)
+            proc.wait()
 
     def paired_align(self, files):
         """
