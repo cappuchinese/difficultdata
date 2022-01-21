@@ -87,7 +87,7 @@ def main():
     else:
         genome_dir = f"{os.getcwd()}/Genome"
 
-    genome_hisat = f"{genome_dir}/HiSat2/Homo_sapiens/GRCh38.92"
+    genome_hisat = f"{genome_dir}/Hisat2_index"
     gtf = f"{genome_dir}/Homo_sapiens.GRCh38.84.gtf"
     genome_fasta = f"{genome_dir}/Homo_sapiens.GRCh38.dna.primary_assembly.fa"
 

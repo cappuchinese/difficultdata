@@ -22,10 +22,10 @@ class Alignment:
     This class is for the functionality of aligning paired & unpaired trimmed reads to an
     established hisat2 genome and then output the alignments as a .bam file.
     The trimmed reads are obtained from the trimmed reads folder.
-    The log file of the alignment is written to the following folder: "Results/Alignment".
+    The log file_ of the alignment is written to the following folder: "Results/Alignment".
     """
 
-    def __init__(self, outputdir, genomehs2):
+    def __init__(self, outputdir, hisat_genome):
         """
         Initialize the class and all the arguments needed.
 
@@ -34,8 +34,8 @@ class Alignment:
                             that the alignments will be aligned against
         """
         self.outputdir = outputdir
-        self.extension = r"fq"
-        self.genome = genomehs2
+        self.extension = "fq"
+        self.genome = hisat_genome
 
         self.files = glob.glob(f"{self.outputdir}/Preprocessing/trimmed/*.{self.extension}")
         self.unique_filenames_unpaired = []
@@ -51,15 +51,15 @@ class Alignment:
         creating .bam/.sam files in the process.
         """
         print(colored("Starting the alignment process", "blue", attrs=["bold"]))
-        files = glob.glob(f"{self.outputdir}/Preprocessing/trimmed/*_trimmed.*")
+
         print(f"Looking in the following folder {self.outputdir}/Preprocessing/trimmed/")
         # Looping through the trimmed files
         for files in self.files:
             print(f"Found file: {files} in folder: {self.outputdir}")   # debug
-            # checking if the file name is unique
-            unique_flag, size_flag = self.check_unique(files)
-            if unique_flag and size_flag:
-                print(f"{files} passed the unique_flag & size_flag statements")  # Debug
+            # checking if the file_ name is unique
+            unique_flag = self.check_unique(files)
+            if unique_flag:
+                print(f"{files} passed the unique_flag statement")  # Debug
                 if files not in self.unique_filenames:
                     # Add the unique filenames to a list
                     self.unique_filenames.append(files)
@@ -69,22 +69,19 @@ class Alignment:
                     else:
                         # Else it is an unpaired alignment
                         self.unique_filenames_unpaired.append(files)
-            elif not size_flag:
-                print("File without data detected: " + colored(files, "red") + " -> skipped")
-                #TODO for pdf -> list of tuples [(file-name, no_data variable)]
             else:
-                print("Duplicate file detected: " + colored(files, "green") + " -> skipped")
-                #TODO for pdf -> list of tuples [(file-name, duplicate file variable)]
+                print("Duplicate file_ detected: " + colored(files, "green") + " -> skipped")
         print(f"The list of unique filenames is as follows:\n{self.unique_filenames}")  # Debug
         # If pair-ended files are included, attempt to combine the pairs
         if len(self.unique_filenames_paired) > 1:
             self._paired_finder()
-
+        print(f'here{self.unique_filenames_unpaired}')
         print(colored("  Amount of unpaired: ", "yellow") + str(len(self.unique_filenames_unpaired)))
         print(colored("  Amount of paired: ", "yellow") + str(len(self.paired_files)))
 
         # Form the processes
         with concurrent.futures.ProcessPoolExecutor() as executor:
+            print("test debug 1 mats ")
             executor.map(self.align, self.unique_filenames_unpaired)  # The unpaired alignments
             executor.map(self.paired_align, self.paired_files)  # The paired alignments
 
@@ -92,26 +89,23 @@ class Alignment:
 
     def check_unique(self, file):
         """
-        Simple function to compare a given file name with the list of files,
+        Simple function to compare a given file_ name with the list of files,
         to check if its a unique name
 
-        :PARAM: file:       string, a file name
+        :PARAM: file:       string, a file_ name
         :RETURN: check_f:   boolean, a TRUE or FALSE flag to be given back stating
-                                    if the file is unique or not
+                                    if the file_ is unique or not
         """
 
         check_f = False
-        check_size = False
 
         if self.files.count(file) == 1:
-            check_f = True
+            if os.path.getsize(file) != 0:
+                check_f = True
+            else:
+                print(colored(f"File: {file} doesn't have any bytes, will be excluded", "red"))
 
-        if os.path.getsize(file) != 0:
-            check_size = True
-        else:
-            print(colored(f"File: {file} doesn't have any bytes, will be excluded", "red"))
-
-        return check_f, check_size
+        return check_f
 
     def _paired_finder(self):
         """
@@ -123,7 +117,7 @@ class Alignment:
                 this dict contains the paired_end files,
                 coupled with each corresponding forward & reverse read.
         """
-        for file in self.unique_filenames_paired:
+        for file_ in self.unique_filenames_paired:
             sequence_name = file[0].split("_")
             if sequence_name in self.paired_files:
                 self.paired_files[sequence_name].append(file)
@@ -143,19 +137,28 @@ class Alignment:
         :param file: a string, the name & location of the file
         :OUTPUT: a .bam file, returns the alignment of unpaired reads to the genome in a .bam file
         """
-        filename = file.split("/")
-        fastq_name = filename[0].split(".")
-        subprocess.run(["hisat2", "-x", f"./{self.genome}", "-U", f"{filename}", "2>",
-                        f"{self.outputdir}/Results/alignment/{fastq_name.replace('_trimmed', '')}"
-                        ".log", "|", "samtools", "view", "-Sbo",
-                        f"{self.outputdir}/Preprocessing/aligned/"
-                        f"{fastq_name.replace('_trimmed', '')}.bam -"],
-                       stdout=subprocess.STDOUT, text=True, check=True)
+        print("check 2 mats ")
+        filename = file.split("/")[-1]
+        fastq_name = filename.split(".")[0]
+        print(self.genome, filename, fastq_name)
+
+        command = [f"hisat2 -x {self.genome}/Homo_sapiens.GRCh38.dna.primary_assemblytest -U {filename} -S {self.outputdir}/Results/alignment/{fastq_name.replace('_trimmed', '')}.log | his view -Sbo {self.outputdir}/Preprocessing/aligned/{fastq_name.replace('_trimmed', '')}.bam"]
+        try:
+            subprocess.Popen(command, shell=True, stdout=subprocess.STDOUT, check=True, text=True)
+            print("done")
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError(f"command '{e.cmd}' return with error (code {e.returncode}): {e.output}")
+
+        # subprocess.run(["hisat2", "-x", f"./{self.genome}", "-U", f"{filename}", "2>",
+        #                f"{self.outputdir}/Results/alignment/{fastq_name.replace('_trimmed', '')}"
+        #                ".log", "|", "samtools", "view", "-Sbo",f"{self.outputdir}/Preprocessing/aligned/"
+        #               f"{fastq_name.replace('_trimmed', '')}.bam -"],
+        #               stdout=subprocess.STDOUT, text=True, check=True)
 
     def paired_align(self, files):
         """
         This functions aligns the paired sequences in the files to the genome generated beforehand
-        The input of this file needs to be 2 reads.
+        The input of this file_ needs to be 2 reads.
 
         :param files:   a list with strings, a list of the pathway & name of 2 files.
         :OUTPUT:    a .bam file, output of the alignment of paired reads to the genome
@@ -163,7 +166,7 @@ class Alignment:
         """
         file_names = []
         # Extract the names of both files
-        for file in files:
+        for file_ in files:
             filename = file.split("/")
             file_names.append(filename)
             filename = filename[0].split(".")
