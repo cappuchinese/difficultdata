@@ -9,7 +9,6 @@ __version__ = "1.0"
 
 # IMPORTS
 import glob
-import sys
 from fpdf import FPDF
 from summary import SummaryWriter
 
@@ -62,7 +61,7 @@ class PDF(FPDF):
         self.chapter_body(fastq_file)
 
 
-class PDFWRITE:
+class PDFWrite:
     def __init__(self, outputdir):
         self.title = "Project Chocokoffie"
         self.pdf = PDF()
@@ -82,17 +81,8 @@ class PDFWRITE:
         self.pdf.output(f"{self.outputdir}/PDF/Results_FastQ_files.pdf", "F")
 
     def main_process(self):
+        sum_gen = SummaryWriter(self.outputdir)
+        sum_gen.main_summary()
         self.file_grabber()
         self.output()
         print("Finished generating the pdf.")
-
-
-def main():
-    outdir = "/students/2021-2022/Thema06/dhaandrikman"
-    sum_gen = SummaryWriter(outdir)
-    sum_gen.main_summary()
-    pdf = PDFWRITE(outdir)
-    pdf.main_process()
-
-if __name__ == '__main__':
-    sys.exit(main())
