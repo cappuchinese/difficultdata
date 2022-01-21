@@ -1,5 +1,5 @@
 """
-Module to check the quality
+Module to unzip the fastq files
 """
 
 # META VARIABLES
@@ -23,9 +23,10 @@ class Unzipper:
 
     def multi_run(self, fastqdir):
         """
-        TODO
-        :param fastqdir: Directory of fastq files
-        :return:
+        The main process for the unzipper, collects the files needed and processes them with
+        the unzip_fastq function.
+        :param fastqdir:    Directory of fastq files
+        :return:            a directory with unzipped fastq files
         """
         # Get the files of the fastq directory
         files = glob.glob(f"{fastqdir}/*.gz")
@@ -51,9 +52,9 @@ class Unzipper:
     @staticmethod
     def unzip_fastq(file):
         """
-        TODO
-        :param file:
-        :return:
+        This module unzips the fastq files for trimming
+        :param      file: the pathway for the fastq file.
+        :return:    a file, unzipped
         """
         # Unzip the files for trimming
         try:
