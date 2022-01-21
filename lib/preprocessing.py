@@ -99,7 +99,7 @@ class Preprocessing:
 
             else:
                 proc =  subprocess.Popen(f"{program[3]} {program[1]} "
-                                         f"{file[:-4]}Merg.bam -o "
+                                         f"{file}.bam -o "
                                          f"{file[:-4]}{program[0][0:4]}Mark.bam", shell=True)
                 proc.wait()
 
