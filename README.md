@@ -77,6 +77,7 @@ hisat2-build /Genome/Homo_sapiens.GRCh38.dna.primary_assembly.fa /Hisat_index/Ho
 
 ## usage 
 
+do this in the directory where Main.py is located
 ```bash
 usage:python3 main.py [-h] -d FASTQDIR -out OUTPUTDIR [-t TRIM]
 
@@ -92,6 +93,11 @@ optional arguments:
 ### example:
 ```bash
 python3 main.py -d /data/storix2/students/2019-2020/Thema06/project-data/How_to_deal_with_difficult_data/Data -o hs -out /students/2021-2022/Thema06/mpslik
+```
+
+after running the script and u want to creat a PDF report, pleas run the following script in the main directory: 
+```bash
+python3 lib/pdf.py -d <outputdirlocatiosn>
 ```
 
 ## output

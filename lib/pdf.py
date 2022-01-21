@@ -94,10 +94,10 @@ def main():
 
     parser = argparse.ArgumentParser(description="script to creat a single pdf report of the created results")
     parser.add_argument("-d", "--output directory", nargs=1, dest='outputdir',
-                        help="put directory location where Main.py is located")
+                        help="put the same output directory location as the Mains script")
 
     arguments = parser.parse_args()
-    create_pdf = PDFWrite(arguments.outputdir)
+    create_pdf = PDFWrite(arguments.outputdir[0])
     create_pdf.main_process()
 
     return 0
