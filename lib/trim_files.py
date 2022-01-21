@@ -75,5 +75,4 @@ class TrimFiles:
                 print(colored("  Trimming with TrimGalore...", "yellow"))
 
             files = glob.glob(f"{self.outdir}/RawData/fastqFiles/*")
-            print(files)
             results = executor.map(self.trimmer, files)

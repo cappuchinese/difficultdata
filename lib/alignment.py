@@ -81,7 +81,6 @@ class Alignment:
 
         # Form the processes
         with concurrent.futures.ProcessPoolExecutor() as executor:
-            print("test debug 1 mats ")
             executor.map(self.align, self.unique_filenames_unpaired)  # The unpaired alignments
             executor.map(self.paired_align, self.paired_files)  # The paired alignments
 
@@ -130,28 +129,21 @@ class Alignment:
         for key in self.paired_files:
             self.paired_files[key] = sorted(self.paired_files[key])
 
-    def align(self, file):
+    def align(self, file_):
         """
         This function aligns the sequences in the files to the genome generated beforehand.
 
-        :param file: a string, the name & location of the file
+        :param file_: a string, the name & location of the file
         :OUTPUT: a .bam file, returns the alignment of unpaired reads to the genome in a .bam file
         """
-        print("check 2 mats ")
-        filename = file.split("/")[-1]
+        filename = file_.split("/")[-1]
         fastq_name = filename.split(".")[0]
-        print(self.genome, filename, fastq_name)
+        log_file = f"{self.outputdir}/Results/alignment/{fastq_name.replace('_trimmed', '')}.log"
 
-        command = f"hisat2 -x {self.genome}/Homo_sapiens.GRCh38.dna.primary_assemblytest -U {self.outputdir}/Preprocessing/trimmed/{filename} -S {self.outputdir}/Results/alignment/{fastq_name.replace('_trimmed', '')}.log -p 2 | samtools view -Sbo {self.outputdir}/Preprocessing/aligned/{fastq_name.replace('_trimmed', '')}.bam"
-        print(command)
-        subprocess.run(command, shell=True, check=True, stdout=subprocess.STDOUT)
-        print("done")
-
-        # subprocess.run(["hisat2", "-x", f"./{self.genome}", "-U", f"{filename}", "2>",
-        #                f"{self.outputdir}/Results/alignment/{fastq_name.replace('_trimmed', '')}"
-        #                ".log", "|", "samtools", "view", "-Sbo",f"{self.outputdir}/Preprocessing/aligned/"
-        #               f"{fastq_name.replace('_trimmed', '')}.bam -"],
-        #               stdout=subprocess.STDOUT, text=True, check=True)
+        command = ["hisat2", f"-x {self.genome}/Homo_sapiens.GRCh38.dna.primary_assemblytest",
+                   f"-U {self.outputdir}/Preprocessing/trimmed/{filename}",
+                   f"-S {log_file}", "-p 2", "|", "samtools", "view", log_file, f"-Sbo {self.outputdir}/Preprocessing/aligned/{fastq_name.replace('_trimmed', '')}.bam"]
+        hi = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     def paired_align(self, files):
         """
@@ -165,16 +157,17 @@ class Alignment:
         file_names = []
         # Extract the names of both files
         for file_ in files:
-            filename = file.split("/")
+            filename = file_.split("/")
             file_names.append(filename)
             filename = filename[0].split(".")
         # Due to the paired reads having the same code,
         # fastq_name only needs to be established once
         fastq_name = filename[0].split("_")
+        log_file = f"{self.outputdir}/Results/alignment/{fastq_name.replace('_trimmed', '')}.log"
 
         subprocess.run(["hisat2", "-x", f"./{self.genome}/Homo_sapiens.GRCh38.dna.primary_assemblytest", "-1", f"{file_names[0]}", "-2",
                         f"{file_names[1]}", "2>",
                         f"{self.outputdir}/Results/alignment/{fastq_name}.log",
-                        "|", "samtools", "view", "-Sbo",
+                        "|", "samtools", "view", log_file, "-Sbo",
                         f"{self.outputdir}/Preprocessing/aligned/{fastq_name}.bam", "-"],
                        stdout=subprocess.STDOUT, text=True, check=True)

@@ -9,6 +9,7 @@ __date__ = 2021.11
 __version__ = 1.0
 
 # Imports
+import datetime
 import os
 import sys
 import argparse
@@ -59,6 +60,8 @@ def main():
     Main function of the pipeline
     :return 0: exitcode
     """
+    time = datetime.datetime.now()
+    print(time)
     # Get all the arguments and the config
     args = __arguments()
     config = read_config()
