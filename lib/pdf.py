@@ -92,7 +92,7 @@ class PDFWrite:
 def main():
 
     parser = argparse.ArgumentParser(description="script to creat a single pdf report of the created results")
-    parser.add_argument("-d", "--output directory", action='store_true', dest='outputdir',
+    parser.add_argument("-d", "--output directory", nargs=1, dest='outputdir',
                         help="put directory location where Main.py is located")
 
     arguments = parser.parse_args()
