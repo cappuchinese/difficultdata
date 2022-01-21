@@ -4,19 +4,16 @@ Module to align the trimmed read files against a genome
 
 # METADATA VARIABLES
 __author__ = "Dennis Haandrikman "
-__status__ = "PDF writing script, WIP"
-__version__ = "N/A"
+__status__ = "PDF writing script"
+__version__ = "1.0"
 
 # IMPORTS
 import glob
-import concurrent.futures as confut
-import subprocess
-import os
 import sys
-
-from termcolor import colored
 from fpdf import FPDF
+from summary import SummaryWriter
 
+# Global for the fdpf package
 title = "Project Chocokoffie"
 
 
@@ -41,10 +38,10 @@ class PDF(FPDF):
         self.cell(0, 10, 'Page ' + str(self.page_no()) + '/{nb}', 0, 0, 'C')
 
     def chapter_title(self, chapter_title):
-        # Arial 12
-        self.set_font('Arial', '', 12)
+        # Arial bold 14
+        self.set_font('Arial', 'B', 14)
         # Title
-        self.cell(0, 6, f'{chapter_title}', 0, 1, 'L', 1)
+        self.cell(w=0, h=6, txt=f'{chapter_title}', ln=1, align='L')
         # Line break
         self.ln(4)
 
@@ -69,30 +66,33 @@ class PDFWRITE:
     def __init__(self, outputdir):
         self.title = "Project Chocokoffie"
         self.pdf = PDF()
+        self.pdf.alias_nb_pages()
         self.pdf.set_title(self.title)
         self.pdf.set_author("Mats Slik, Lisa Hu, Orfeas Gkourlias, Dennis Haandrikman")
         self.outputdir = outputdir
 
     def file_grabber(self):
-        information_files = glob.glob(f"{self.outputdir}/Preprocessing/aligned/*.txt")
-        print(information_files)
+        information_files = glob.glob(f"{self.outputdir}/Results/Summary/*.txt")
         for fastq_file in information_files:
-            test_title = fastq_file.split(".")[0]
-            self.pdf.print_chapter(test_title, fastq_file)
+            file_name = fastq_file.split("/")[-1]
+            file_title = file_name.split(".")[0]
+            self.pdf.print_chapter(file_title, fastq_file)
 
     def output(self):
-        self.pdf.output("/students/2021-2022/Thema06/dhaandrikman/Results/"
-                        "fastQC/Results_FastQ_files.pdf", "F")
+        self.pdf.output(f"{self.outputdir}/PDF/Results_FastQ_files.pdf", "F")
 
     def main_process(self):
         self.file_grabber()
         self.output()
+        print("Finished generating the pdf.")
 
 
 def main():
-    pdf = PDFWRITE("/students/2021-2022/Thema06/dhaandrikman")
+    outdir = "/students/2021-2022/Thema06/dhaandrikman"
+    sum_gen = SummaryWriter(outdir)
+    sum_gen.main_summary()
+    pdf = PDFWRITE(outdir)
     pdf.main_process()
-
 
 if __name__ == '__main__':
     sys.exit(main())
