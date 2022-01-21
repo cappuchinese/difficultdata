@@ -88,6 +88,7 @@ class PipelineFuncs:
             os.makedirs(f"{self.outdir}/Results/alignment")
             os.makedirs(f"{self.outdir}/Results/fastQC")
             os.makedirs(f"{self.outdir}/Results/multiQC")
+            os.makedirs(f"{self.outdir}/Results/Summary")
 
     def _create_codedir(self):
         """
@@ -106,6 +107,13 @@ class PipelineFuncs:
             os.makedirs(f"{self.outdir}/RawData/fastqFiles")
             os.makedirs(f"{self.outdir}/RawData/counts")
 
+    def _create_sumdir(self):
+        """
+        Check if summary directory exists, otherwise create it
+        """
+        if not os.path.exists(f"{self.outdir}/Summary/"):
+            os.makedirs(f"{self.outdir}/Summary/")
+
     def create_all(self):
         """
         Run all the directory methods
@@ -116,6 +124,7 @@ class PipelineFuncs:
         self._create_resdir()
         self._create_codedir()
         self._create_rawdir()
+        self._create_sumdir()
 
     def remove_folders(self):
         """
