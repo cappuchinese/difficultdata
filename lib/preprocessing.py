@@ -25,7 +25,7 @@ class Preprocessing:
         :param output_dir:      a string, contains the filepath for the output directory of this
                                 script
         """
-        self.outputDir = output_dir
+        self.outputDir = f"{output_dir}/Preprocessing"
 
     def run_picard(self):
         """
@@ -37,56 +37,73 @@ class Preprocessing:
         files = glob.glob(f'{self.outputDir}/aligned/*.bam')
         # Creates a temporary directory in which the module will apply all necessary steps
         # leading up to the final file.
-        subprocess.run(f"mkdir {self.outputDir}/temp", shell=True)
+        subprocess.Popen(f"mkdir {self.outputDir}/temp", shell=True)
+        copy = subprocess.Popen(f"cp {self.outputDir}/aligned/*.bam {self.outputDir}/temp", shell=True)
+        copy.wait()
+        print("test1")
+        print(files)
         # Initialises the multiprocessing module so all files can be finished separately.
         executor = concurrent.futures.ProcessPoolExecutor()
+        print("test2")
         executor.map(self.process_file, files)
+        print("test3")
         executor.shutdown()
+        print("test4")
         # Remove the unnecessary files used in achieving the end file.
         subprocess.run(f"rm -r {self.outputDir}/temp", shell=True)
+        print("test5")
 
     def process_file(self, file):
         """
         Executes the programs which are specified in the programs list
-        on the preprocessing files found.
+        on the preprocessing files found.-
         :param file:        a string, contains the filepath & filename for the .bam file
         :return:            a file, a sorted .bam file
         """
-        # In case the final directory doesn't exist, create it.
-        subprocess.run(f"mkdir -p {self.outputDir}/markDuplicates/", shell=True)
-        subprocess.run(f"cp {file} {self.outputDir}/temp", shell=True)
+
         # Retrieve the file name from the file path.
+        print(file)
         file_name = re.search(r"[^/]+(?=\.bam)", file).group(0)
+        print(file_name)
         file = f"{self.outputDir}/temp/{file_name}.bam"
 
         # A list of program parameters to be called with the programs.
         # Every tuple entry specifies something
         # [0] = Prior program, [1] = Next program, [2] = Program options, [3] = Command prefix.
-        programs = [("", "SortSam", "SO=queryname", f"java -jar tools/picard.jar"),
+        programs = [("", "SortSam", "SO=queryname", f"java -jar bin/picard.jar"),
 
                     ("SortSam", "AddOrReplaceReadGroups",
                      f"LB={file_name} PU={file_name} SM={file_name} PL=illumina CREATE_INDEX=true",
-                     "java -jar tools/picard.jar"),
+                     "java -jar bin/picard.jar"),
 
                     ("AddOrReplaceReadGroups", "FixMateInformation", "",
-                     "java -jar tools/picard.jar"),
+                     "java -jar bin/picard.jar"),
 
                     ("FixMateInformation", "MergeSamFiles", "CREATE_INDEX=true USE_THREADING=true",
-                     "java -jar tools/picard.jar"),
+                     "java -jar bin/picard.jar"),
 
                     ("MergeSamFiles", "MarkDuplicates", "CREATE_INDEX=true",
                      f"METRICS_FILE={self.outputDir}/markDuplicates/{file_name}.metrics.log",
-                     "java -jar tools/picard.jar"),
+                     "java -jar bin/picard.jar"),
 
                     ("MarkDuplicates", "sort -n", "", "samtools")]
         # Run every program on the file.
         # Append program names to file names as identifiers when looking for the previous file.
         for program in programs:
-            subprocess.run(f"{program[3]} {program[1]} "
-                      f"I={file[:-4]}{program[0][0:4]}.bam "
-                      f"O={file[:-4]}{program[1][0:4]}.bam "
-                      f"{program[2]}", shell=True)
+            if program[0] != "MarkDuplicates":
+                proc =  subprocess.Popen(f"{program[3]} {program[1]} "
+                            f"I={file[:-4]}{program[0][0:4]}.bam "
+                            f"O={file[:-4]}{program[1][0:4]}.bam "
+                            f"{program[2]}", shell=True)
+                proc.wait()
+
+            else:
+                proc =  subprocess.Popen(f"{program[3]} {program[1]} "
+                                         f"{file[:-4]}Merg.bam -o "
+                                         f"{file[:-4]}{program[0][0:4]}Mark.bam", shell=True)
+                proc.wait()
+
 
         # Complete the preprocessing by moving the final file to the markDuplicates directory.
-        subprocess.run(f"mv {self.outputDir}/temp/{file_name}Sort.bam "
+        subprocess.run(f"mv {self.outputDir}/temp/{file_name}Mark.bam "
                        f"{self.outputDir}/markDuplicates/{file_name}_sorted.bam", shell=True)
