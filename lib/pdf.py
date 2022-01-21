@@ -98,7 +98,7 @@ def main():
 
     arguments = parser.parse_args()
     create_pdf = PDFWrite(arguments.outputdir)
-
+    create_pdf.main_process()
 
     return 0
 
