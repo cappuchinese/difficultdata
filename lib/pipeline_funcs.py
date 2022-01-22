@@ -88,7 +88,6 @@ class PipelineFuncs:
             os.makedirs(f"{self.outdir}/Results/alignment")
             os.makedirs(f"{self.outdir}/Results/fastQC")
             os.makedirs(f"{self.outdir}/Results/multiQC")
-            os.makedirs(f"{self.outdir}/Results/Summary")
 
     def _create_codedir(self):
         """
@@ -107,13 +106,6 @@ class PipelineFuncs:
             os.makedirs(f"{self.outdir}/RawData/fastqFiles")
             os.makedirs(f"{self.outdir}/RawData/counts")
 
-    def _create_pdfdir(self):
-        """
-        Check if summary directory exists, otherwise create it
-        """
-        if not os.path.exists(f"{self.outdir}/PDF/"):
-            os.makedirs(f"{self.outdir}/PDF/")
-
     def create_all(self):
         """
         Run all the directory methods
@@ -124,7 +116,6 @@ class PipelineFuncs:
         self._create_resdir()
         self._create_codedir()
         self._create_rawdir()
-        self._create_pdfdir()
 
     def remove_folders(self):
         """
@@ -170,11 +161,11 @@ class PipelineFuncs:
         :OUTPUT:            2 files, a .txt with gene counts and a .bam file with marked duplicates
         """
         print(colored("Using featureCounts...", "blue", attrs=["bold"]))
-        subprocess.run([feature_count, "-a", gtffile,
+        subprocess.Popen([feature_count, "-a",
+                        "/students/2021-2022/Thema06/Genome/Homo_sapiens.GRCh38.84.gtf",
                         "-o", f"{self.outdir}/RawData/counts/geneCounts.txt",
                         f"{self.outdir}/Preprocessing/markDuplicates/*_sorted.bam"],
-                       stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.STDOUT,
-                       text=True, check=True)
+                         shell=True)
 
     @staticmethod
     def fasta_processing(genome_fasta, picard):

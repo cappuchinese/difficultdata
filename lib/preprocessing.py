@@ -82,7 +82,7 @@ class Preprocessing:
                     ("FixMateInformation", "MergeSamFiles", "CREATE_INDEX=true USE_THREADING=true",
                      "java -jar bin/picard.jar"),
 
-                    ("MergeSamFiles", "MarkDuplicates", "CREATE_INDEX=true",
+                    ("MergeSamFiles", "MarkDuplicates", f"CREATE_INDEX=true "
                      f"METRICS_FILE={self.outputDir}/markDuplicates/{file_name}.metrics.log",
                      "java -jar bin/picard.jar"),
 
@@ -99,11 +99,11 @@ class Preprocessing:
 
             else:
                 proc =  subprocess.Popen(f"{program[3]} {program[1]} "
-                                         f"{file} -o "
-                                         f"{file[:-4]}{program[0][0:4]}Mark.bam", shell=True)
+                                         f"{file[:-4]}Mark.bam -o "
+                                         f"{file[:-4]}Sorted.bam", shell=True)
                 proc.wait()
 
 
         # Complete the preprocessing by moving the final file to the markDuplicates directory.
-        subprocess.run(f"mv {self.outputDir}/temp/{file_name}Mark.bam "
+        subprocess.run(f"mv {self.outputDir}/temp/{file_name}Sorted.bam "
                        f"{self.outputDir}/markDuplicates/{file_name}_sorted.bam", shell=True)
